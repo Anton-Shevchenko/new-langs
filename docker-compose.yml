@@ -1,0 +1,39 @@
+services:
+  go-app:
+    image: cosmtrek/air
+    working_dir: /app
+    container_name: app
+    restart: "on-failure"
+    depends_on:
+      - 'db'
+    environment:
+      - PORT=443
+    ports:
+      - '443:443'
+    volumes:
+      - './app/:/app/'
+    networks:
+      - app-network
+
+  db:
+    image: postgres:latest
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/data/db
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
