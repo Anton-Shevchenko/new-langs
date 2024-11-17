@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"langs/internal/consts"
@@ -14,7 +15,7 @@ import (
 
 func (h *TGHandler) processNewWord(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User) {
 	newWord := strings.ToLower(strings.TrimSpace(update.Message.Text))
-
+	fmt.Println("NEW WORD", newWord, user)
 	fromLang, err := language_detector.Detect(newWord, user.GetUserLangs())
 	if err != nil {
 		h.handleError(ctx, b, update.Message.Chat.ID, "Language detection failed")

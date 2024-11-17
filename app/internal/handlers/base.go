@@ -89,6 +89,12 @@ func (h *TGHandler) handleText(ctx context.Context, b *bot.Bot, update *models.U
 		fmt.Println("No user")
 		return
 	}
+
+	if len(user.GetUserLangs()) == 0 {
+		fmt.Println("Invalid user")
+		return
+	}
+
 	if user.IsAwaitingInput() {
 		h.processCustomTranslation(ctx, b, update, user)
 		return
