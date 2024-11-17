@@ -114,24 +114,24 @@ func initDependencies(ctx context.Context) *bot.Bot {
 	//job := jobs.NewSendWordJob(wordRepo, tgMessage, userRepo)
 	//job.Execute(tgHandler.Te)
 
-	chatIds, err := userRepo.GetAllChatIDs()
-	if err != nil {
-		return nil
-	}
-
-	for _, id := range chatIds {
-		go b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: id,
-			Text:   "Choose an option:",
-			ReplyMarkup: tgKeyboard.InitMenuKeyboard(
-				b,
-				tgHandler.OnWordList,
-				tgHandler.HandleBack,
-				tgHandler.HandleBooks,
-			),
-		})
-
-	}
+	//chatIds, err := userRepo.GetAllChatIDs()
+	//if err != nil {
+	//	return nil
+	//}
+	//
+	//for _, id := range chatIds {
+	//	go b.SendMessage(ctx, &bot.SendMessageParams{
+	//		ChatID: id,
+	//		Text:   "Choose an option:",
+	//		ReplyMarkup: tgKeyboard.InitMenuKeyboard(
+	//			b,
+	//			tgHandler.OnWordList,
+	//			tgHandler.HandleBack,
+	//			tgHandler.HandleBooks,
+	//		),
+	//	})
+	//
+	//}
 
 	return b
 }
