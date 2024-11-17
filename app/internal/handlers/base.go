@@ -66,12 +66,12 @@ func NewTGHandler(
 }
 
 func (h *TGHandler) DefaultHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
-	if update.Message.Document != nil {
-		h.handleDocument(ctx, b, update)
+	if update == nil || update.Message == nil {
 		return
 	}
 
-	if update.Message == nil {
+	if update.Message.Document != nil {
+		h.handleDocument(ctx, b, update)
 		return
 	}
 
