@@ -28,6 +28,9 @@ func T(messageID string) string {
 }
 
 func LoadLang(lang string) {
+	if lang == "" {
+		lang = "en"
+	}
 	bundle.MustLoadMessageFile(fmt.Sprintf("%s%s", translationsPath, fmt.Sprintf("active.%s.toml", lang)))
 	Localaizer = i18n.NewLocalizer(bundle, lang)
 }
