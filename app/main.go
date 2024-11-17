@@ -37,7 +37,7 @@ func main() {
 	ctx, cancel := setupSignalContext()
 	defer cancel()
 
-	b := initDependencies()
+	b := initDependencies(ctx)
 
 	b.StartWebhook(ctx)
 }
@@ -46,11 +46,10 @@ func setupSignalContext() (context.Context, context.CancelFunc) {
 	return signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
 }
 
-func initDependencies() *bot.Bot {
+func initDependencies(ctx context.Context) *bot.Bot {
 	var b *bot.Bot
 
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-	ctx := context.Background()
 
 	if botToken == "" {
 		botToken = "6631879525:AAFM7m_0W7IlW1d2II5rtE4-mCH16Pl-sY8"
@@ -96,6 +95,12 @@ func initDependencies() *bot.Bot {
 		bot.WithMessageTextHandler("/start", bot.MatchTypeExact, commandSet.Start),
 	}
 
+	b, err = bot.New(botToken, botOptions...)
+
+	b.SetWebhook(ctx, &bot.SetWebhookParams{
+		URL: "https://anton-shevchenko.com/webhook",
+	})
+
 	go func() {
 		log.Println("Starting server on :443")
 		err = http.ListenAndServeTLS(":443", "fullchain.crt", "server.key", b.WebhookHandler())
@@ -103,12 +108,6 @@ func initDependencies() *bot.Bot {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
-
-	b, err = bot.New(botToken, botOptions...)
-
-	b.SetWebhook(ctx, &bot.SetWebhookParams{
-		URL: "https://anton-shevchenko.com/webhook",
-	})
 
 	tgMessage.B = b
 
