@@ -25,7 +25,7 @@ func NewUserService(
 func (s *userService) InitUser(chatId int64) *model.User {
 	user, err := s.repository.First(chatId)
 
-	if err == nil && user != nil {
+	if err == nil && user != nil && user.InterfaceLang != "" {
 		fmt.Println("localized")
 		localizer_lib.LoadLang(user.InterfaceLang)
 	} else {

@@ -146,6 +146,8 @@ func initUser(next bot.HandlerFunc) bot.HandlerFunc {
 				user = &model.User{
 					ChatID: chatID,
 				}
+
+				fmt.Println("USER", user)
 				userService.Upsert(user)
 
 			}
