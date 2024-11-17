@@ -89,12 +89,9 @@ func initDependencies() *bot.Bot {
 	tgHandler := handlers.NewTGHandler(tgKeyboard, tgMessage, wordService, wordRepo, userRepo, userService, readerService)
 	commandSet := command.NewCommandSet(userService, userRepo, tgKeyboard, wordRepo, tgHandler)
 
-	_, err = b.SetWebhook(ctx, &bot.SetWebhookParams{
+	b.SetWebhook(ctx, &bot.SetWebhookParams{
 		URL: "https://anton-shevchenko.com/webhook",
 	})
-	if err != nil {
-		fmt.Println(err.Error())
-	}
 
 	botOptions := []bot.Option{
 		bot.WithMiddlewares(initUser),
