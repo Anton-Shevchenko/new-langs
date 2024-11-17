@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"langs/internal/interfaces"
@@ -84,6 +85,10 @@ func (h *TGHandler) handleError(ctx context.Context, b *bot.Bot, chatID int64, e
 func (h *TGHandler) handleText(ctx context.Context, b *bot.Bot, update *models.Update) {
 	user := h.getUserFromContext(ctx, b, update)
 
+	if user == nil {
+		fmt.Println("No user")
+		return
+	}
 	if user.IsAwaitingInput() {
 		h.processCustomTranslation(ctx, b, update, user)
 		return
