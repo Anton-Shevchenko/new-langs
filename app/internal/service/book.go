@@ -31,7 +31,6 @@ func NewReaderService(
 }
 
 func (s *ReaderService) ReadBookPart(bookId int64) (*model.BookPart, error) {
-
 	bookPartId, err := s.bookProgressRepository.Find(bookId)
 	if err != nil {
 		return nil, err
