@@ -16,7 +16,7 @@ func (h *TGHandler) handleDocument(ctx context.Context, b *bot.Bot, update *mode
 	document := update.Message.Document
 
 	if document.MimeType != "text/plain" {
-		TGbot.SendMessage(ctx, b, user.ChatID, "Book has to be in .txt format", nil)
+		TGbot.SendMessage(ctx, b, user.ChatId, "Book has to be in .txt format", nil)
 
 	}
 
@@ -27,7 +27,7 @@ func (h *TGHandler) handleDocument(ctx context.Context, b *bot.Bot, update *mode
 	if err != nil {
 		fmt.Println("Error getting file URL:", err)
 		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: user.ChatID,
+			ChatID: user.ChatId,
 			Text:   err.Error(),
 		})
 		return
@@ -38,7 +38,7 @@ func (h *TGHandler) handleDocument(ctx context.Context, b *bot.Bot, update *mode
 	if err != nil {
 		fmt.Println("Error downloading file:", err)
 		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: user.ChatID,
+			ChatID: user.ChatId,
 			Text:   "Не удалось скачать файл.",
 		})
 		return

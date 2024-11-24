@@ -1,6 +1,7 @@
 package user_repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"langs/internal/interfaces"
 	"langs/internal/model"
@@ -39,19 +40,20 @@ func (r *userRepository) FirstOrCreate(chatId int64) (*model.User, error) {
 			return nil, err
 		}
 
-		if dbUser.ChatID != 0 {
+		if dbUser.ChatId != 0 {
 			return dbUser, nil
 		}
 	}
 
-	newUser := &model.User{ChatID: chatId}
+	newUser := &model.User{ChatId: chatId}
 	err := r.Create(newUser)
 
 	return newUser, err
 }
 
 func (r *userRepository) Update(user *model.User) error {
-	return r.db.Save(&user).Error
+	fmt.Println("UUUUUUU", user)
+	return r.db.Where("chat_id = ?", user.ChatId).Save(&user).Error
 }
 
 func (r *userRepository) GetAllByInterval(interval uint16) ([]*model.User, error) {

@@ -36,7 +36,7 @@ func (s *userService) InitUser(chatId int64) *model.User {
 }
 
 func (s *userService) Upsert(user *model.User) error {
-	if user.ChatID != 0 {
+	if user.ChatId != 0 {
 		s.repository.Update(user)
 	}
 

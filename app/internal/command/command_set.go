@@ -81,7 +81,7 @@ func (s *CommandSet) onNativeLangAndAskLangToLearn(
 		return
 	}
 
-	s.userService.InitUser(user.ChatID)
+	s.userService.InitUser(user.ChatId)
 	s.AskLangToStudy(ctx, b, mes)
 }
 

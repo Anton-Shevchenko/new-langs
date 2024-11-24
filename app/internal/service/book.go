@@ -35,11 +35,11 @@ func (s *ReaderService) ReadBookPart(bookId int64) (*model.BookPart, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.bookPartRepository.Find(bookPartId.BookPartId)
+	return s.bookPartRepository.Find(bookPartId.BookPartId, bookId)
 }
 
 func (s *ReaderService) GetBooks(user *model.User) ([]*model.Book, error) {
-	books, err := s.bookRepository.AllByChatId(user.ChatID)
+	books, err := s.bookRepository.AllByChatId(user.ChatId)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (s *ReaderService) GetBooks(user *model.User) ([]*model.Book, error) {
 
 func (s *ReaderService) AddBook(filePath, name string, user *model.User) (*model.Book, error) {
 	book := &model.Book{
-		ChatId: user.ChatID,
+		ChatId: user.ChatId,
 		Name:   name,
 	}
 	err := s.bookRepository.Create(book)

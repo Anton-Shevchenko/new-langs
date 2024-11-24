@@ -156,7 +156,7 @@ func initUser(next bot.HandlerFunc) bot.HandlerFunc {
 
 			if user == nil {
 				user = &model.User{
-					ChatID: chatID,
+					ChatId: chatID,
 				}
 
 				fmt.Println("USER", user)
@@ -191,6 +191,9 @@ func startBot(ctx context.Context, b *bot.Bot) {
 	if env == "prod" {
 		b.StartWebhook(ctx)
 	} else {
+		b.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
+			DropPendingUpdates: true,
+		})
 		b.Start(ctx)
 	}
 }

@@ -15,9 +15,9 @@ func NewBookPartRepository(db *gorm.DB) *BookPartRepository {
 	}
 }
 
-func (r *BookPartRepository) Find(number int64) (*model.BookPart, error) {
+func (r *BookPartRepository) Find(number, bookId int64) (*model.BookPart, error) {
 	var bookPart model.BookPart
-	err := r.db.Where("number = ?", number).First(&bookPart).Error
+	err := r.db.Where("number = ? and book_id = ?", number, bookId).First(&bookPart).Error
 
 	if err != nil {
 		return nil, err

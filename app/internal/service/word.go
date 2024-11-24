@@ -36,7 +36,7 @@ func (s *WordService) AddWord(source, translation string, user *model.User) (*mo
 		IsSimpleWord:    len(fields) == 1,
 		Value:           source,
 		Translation:     translation,
-		ChatId:          user.ChatID,
+		ChatId:          user.ChatId,
 		ValueLang:       sourceLang,
 		TranslationLang: translateLang,
 	}

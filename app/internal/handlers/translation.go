@@ -75,7 +75,7 @@ func (h *TGHandler) handleCustomTranslation(
 		return
 	}
 
-	h.tgMessage.SendOrEditMessage(ctx, user.ChatID, 0, "Write your translation", nil)
+	h.tgMessage.SendOrEditMessage(ctx, user.ChatId, 0, "Write your translation", nil)
 }
 
 func (h *TGHandler) OnSelectTranslateOption(

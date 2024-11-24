@@ -44,7 +44,7 @@ func (j *SendWordJob) Execute(handle inline.OnSelect) {
 }
 
 func (j *SendWordJob) sendTest(user *model.User, handle inline.OnSelect) {
-	word, err := j.wordRepository.GetRandomWordByChatId(user.ChatID)
+	word, err := j.wordRepository.GetRandomWordByChatId(user.ChatId)
 
 	if err != nil {
 		return
@@ -57,7 +57,7 @@ func (j *SendWordJob) sendTest(user *model.User, handle inline.OnSelect) {
 
 	randomWord := j.getRandomWordOption(pair)
 	translations, err := j.wordRepository.GetRandomTranslationsByChatId(
-		user.ChatID,
+		user.ChatId,
 		randomWord.Translation,
 		randomWord.TranslationLang,
 		3,
@@ -68,7 +68,7 @@ func (j *SendWordJob) sendTest(user *model.User, handle inline.OnSelect) {
 		return
 	}
 
-	j.messengerService.SendWordTest(user.ChatID, handle, randomWord.Word, j.shuffleTranslations(translations))
+	j.messengerService.SendWordTest(user.ChatId, handle, randomWord.Word, j.shuffleTranslations(translations))
 }
 
 func (j *SendWordJob) getRand() *rand.Rand {
