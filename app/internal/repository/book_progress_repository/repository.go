@@ -26,7 +26,8 @@ func (r *BookProgressRepository) FindOrCreate(bookId int64) (*model.BookProgress
 
 	if err.Error() == "record not found" {
 		newProgress := &model.BookProgress{
-			BookId: bookId,
+			BookId:     bookId,
+			BookPartId: 1,
 		}
 		if err := r.Create(newProgress); err != nil {
 			return nil, err
