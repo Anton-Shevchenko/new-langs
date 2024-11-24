@@ -60,8 +60,8 @@ func initDependencies(ctx context.Context) *bot.Bot {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 
 	if botToken == "" {
-		//botToken = "6631879525:AAFM7m_0W7IlW1d2II5rtE4-mCH16Pl-sY8"
-		botToken = "6207869114:AAEFF8TKV24lJaUj6__m5kt4lT9dGj3BETY"
+		botToken = "6631879525:AAFM7m_0W7IlW1d2II5rtE4-mCH16Pl-sY8"
+		//botToken = "6207869114:AAEFF8TKV24lJaUj6__m5kt4lT9dGj3BETY"
 	}
 
 	postgresConnection := db.NewPostgresConnection("")
