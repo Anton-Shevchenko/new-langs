@@ -1,6 +1,7 @@
 package book_progress_repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"langs/internal/model"
 )
@@ -13,6 +14,27 @@ func NewBookProgressRepository(db *gorm.DB) *BookProgressRepository {
 	return &BookProgressRepository{
 		db: db,
 	}
+}
+
+func (r *BookProgressRepository) FindOrCreate(bookId int64) (*model.BookProgress, error) {
+	progress, err := r.Find(bookId)
+	if err == nil {
+		return progress, nil
+	}
+
+	fmt.Println("ERR", err)
+
+	if err.Error() == "record not found" {
+		newProgress := &model.BookProgress{
+			BookId: bookId,
+		}
+		if err := r.Create(newProgress); err != nil {
+			return nil, err
+		}
+		return newProgress, nil
+	}
+
+	return nil, err
 }
 
 func (r *BookProgressRepository) Find(bookId int64) (*model.BookProgress, error) {

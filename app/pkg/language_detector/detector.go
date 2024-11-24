@@ -2,6 +2,7 @@ package language_detector
 
 import (
 	"errors"
+	"fmt"
 	"github.com/pemistahl/lingua-go"
 	"strings"
 )
@@ -30,7 +31,7 @@ func getLanguages() []lingua.Language {
 
 func Detect(word string, languages []string) (string, error) {
 	var fromLanguages []lingua.Language
-
+	fmt.Println("LAAAAAANG", word, languages)
 	for _, lang := range languages {
 		fromLanguages = append(fromLanguages, lingua.GetLanguageFromIsoCode639_1(lingua.IsoCode639_1(Map[lang])))
 	}

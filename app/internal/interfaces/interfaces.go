@@ -2,6 +2,8 @@ package interfaces
 
 import (
 	"context"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"github.com/go-telegram/ui/keyboard/inline"
 	"langs/internal/model"
 )
@@ -42,4 +44,10 @@ type WordRepository interface {
 
 type MessengerService interface {
 	SendWordTest(chatId int64, handle inline.OnSelect, word string, translations []string)
+}
+
+type CommandSetInterface interface {
+	Start(ctx context.Context, b *bot.Bot, update *models.Update)
+	AskNativeLang(ctx context.Context, b *bot.Bot, update *models.Update)
+	AskLangToStudy(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage)
 }

@@ -32,7 +32,7 @@ func SendPrompt(ctx context.Context, b *bot.Bot, msg *models.Message, text strin
 	}
 }
 
-func SendMessage(ctx context.Context, b *bot.Bot, chatID int64, text string) {
+func SendMessage(ctx context.Context, b *bot.Bot, chatID int64, text string, markup interface{}) {
 	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:    chatID,
 		Text:      text,
@@ -40,6 +40,7 @@ func SendMessage(ctx context.Context, b *bot.Bot, chatID int64, text string) {
 		LinkPreviewOptions: &models.LinkPreviewOptions{
 			IsDisabled: bot.True(),
 		},
+		ReplyMarkup: markup,
 	})
 	if err != nil {
 		return

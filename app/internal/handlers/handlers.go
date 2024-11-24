@@ -21,6 +21,7 @@ func (h *TGHandler) handleSpellingMistakes(ctx context.Context, b *bot.Bot, upda
 
 	newWord := strings.ToLower(strings.TrimSpace(update.Message.Text))
 	detectedLang, err := language_detector.Detect(newWord, user.GetUserLangs())
+
 	if err != nil {
 		return false
 	}

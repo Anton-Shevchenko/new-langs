@@ -43,6 +43,7 @@ type TGHandler struct {
 	userRepository interfaces.UserRepository
 	userService    interfaces.UserService
 	readerService  *service.ReaderService
+	commandSet     interfaces.CommandSetInterface
 }
 
 func NewTGHandler(
@@ -65,6 +66,10 @@ func NewTGHandler(
 	}
 }
 
+func (h *TGHandler) SetCommandSet(set interfaces.CommandSetInterface) {
+	h.commandSet = set
+}
+
 func (h *TGHandler) DefaultHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	if update == nil || update.Message == nil {
 		return
@@ -75,14 +80,6 @@ func (h *TGHandler) DefaultHandler(ctx context.Context, b *bot.Bot, update *mode
 		return
 	}
 
-	h.handleText(ctx, b, update)
-}
-
-func (h *TGHandler) handleError(ctx context.Context, b *bot.Bot, chatID int64, errorMsg string) {
-	TGbot.SendMessage(ctx, b, chatID, "Error occurred: "+errorMsg)
-}
-
-func (h *TGHandler) handleText(ctx context.Context, b *bot.Bot, update *models.Update) {
 	user := h.getUserFromContext(ctx, b, update)
 
 	if user == nil {
@@ -90,11 +87,19 @@ func (h *TGHandler) handleText(ctx context.Context, b *bot.Bot, update *models.U
 		return
 	}
 
-	if len(user.GetUserLangs()) == 0 {
-		fmt.Println("Invalid user")
+	if len(user.GetUserLangs()) > 1 && (user.GetUserLangs()[0] == "" || user.GetUserLangs()[1] == "") {
+		h.commandSet.Start(ctx, b, update)
 		return
 	}
 
+	h.handleText(ctx, b, update, user)
+}
+
+func (h *TGHandler) handleError(ctx context.Context, b *bot.Bot, chatID int64, errorMsg string) {
+	TGbot.SendMessage(ctx, b, chatID, "Error occurred: "+errorMsg, nil)
+}
+
+func (h *TGHandler) handleText(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User) {
 	if user.IsAwaitingInput() {
 		h.processCustomTranslation(ctx, b, update, user)
 		return

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+	"github.com/joho/godotenv"
 	"langs/internal/command"
 	"langs/internal/handlers"
 	"langs/internal/repository/book_part_repository"
@@ -34,12 +35,19 @@ var (
 )
 
 func main() {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+
+		return
+	}
 	ctx, cancel := setupSignalContext()
 	defer cancel()
 
 	b := initDependencies(ctx)
 
-	b.StartWebhook(ctx)
+	startBot(ctx, b)
 }
 
 func setupSignalContext() (context.Context, context.CancelFunc) {
@@ -52,7 +60,8 @@ func initDependencies(ctx context.Context) *bot.Bot {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 
 	if botToken == "" {
-		botToken = "6631879525:AAFM7m_0W7IlW1d2II5rtE4-mCH16Pl-sY8"
+		//botToken = "6631879525:AAFM7m_0W7IlW1d2II5rtE4-mCH16Pl-sY8"
+		botToken = "6207869114:AAEFF8TKV24lJaUj6__m5kt4lT9dGj3BETY"
 	}
 
 	postgresConnection := db.NewPostgresConnection("")
@@ -87,6 +96,7 @@ func initDependencies(ctx context.Context) *bot.Bot {
 
 	tgHandler := handlers.NewTGHandler(tgKeyboard, tgMessage, wordService, wordRepo, userRepo, userService, readerService)
 	commandSet := command.NewCommandSet(userService, userRepo, tgKeyboard, wordRepo, tgHandler)
+	tgHandler.SetCommandSet(commandSet)
 
 	botOptions := []bot.Option{
 		bot.WithMiddlewares(initUser),
@@ -97,17 +107,19 @@ func initDependencies(ctx context.Context) *bot.Bot {
 
 	b, err = bot.New(botToken, botOptions...)
 
-	b.SetWebhook(ctx, &bot.SetWebhookParams{
-		URL: "https://anton-shevchenko.com/webhook",
-	})
+	//b.SetWebhook(ctx, &bot.SetWebhookParams{
+	//	URL: "https://anton-shevchenko.com/webhook",
+	//})
+	//
+	//go func() {
+	//	log.Println("Starting server on :443")
+	//	err = http.ListenAndServeTLS(":443", "fullchain.crt", "server.key", b.WebhookHandler())
+	//	if err != nil {
+	//		log.Fatalf("Failed to start server: %v", err)
+	//	}
+	//}()
 
-	go func() {
-		log.Println("Starting server on :443")
-		err = http.ListenAndServeTLS(":443", "fullchain.crt", "server.key", b.WebhookHandler())
-		if err != nil {
-			log.Fatalf("Failed to start server: %v", err)
-		}
-	}()
+	startServer(ctx, b)
 
 	tgMessage.B = b
 
@@ -157,5 +169,39 @@ func initUser(next bot.HandlerFunc) bot.HandlerFunc {
 		ctx = context.WithValue(ctx, "user", user)
 
 		next(ctx, b, update)
+	}
+}
+
+func startServerWithSSL(ctx context.Context, b *bot.Bot) {
+	b.SetWebhook(ctx, &bot.SetWebhookParams{
+		URL: "https://anton-shevchenko.com/webhook",
+	})
+
+	go func() {
+		err := http.ListenAndServeTLS(":443", "fullchain.crt", "server.key", b.WebhookHandler())
+
+		if err != nil {
+			log.Fatalf("Failed to start server with SSL: %v", err)
+		}
+	}()
+}
+
+func startBot(ctx context.Context, b *bot.Bot) {
+	env := os.Getenv("ENV")
+	if env == "prod" {
+		b.StartWebhook(ctx)
+	} else {
+		b.Start(ctx)
+	}
+}
+
+func startServer(ctx context.Context, b *bot.Bot) {
+	env := os.Getenv("ENV")
+
+	fmt.Println("ENV", env)
+	if env == "prod" {
+		startServerWithSSL(ctx, b)
+	} else {
+
 	}
 }

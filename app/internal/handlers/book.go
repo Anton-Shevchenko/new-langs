@@ -71,10 +71,6 @@ func (h *TGHandler) HandleBook(
 
 func (h *TGHandler) handleBookNavigation(ctx context.Context, b *bot.Bot, update *models.Update, navFunc func(userID int64)) {
 	user := h.getUserFromContext(ctx, b, update)
-	//TODO
-	if user.BookId == 0 {
-		user.BookID = 1
-	}
 	navFunc(user.BookID)
 
 	bookPart, err := h.readerService.ReadBookPart(user.BookID)

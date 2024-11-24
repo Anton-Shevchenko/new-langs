@@ -40,20 +40,20 @@ func NewCommandSet(
 }
 
 func (s *CommandSet) Start(ctx context.Context, b *bot.Bot, update *models.Update) {
-	s.askNativeLang(ctx, b, update)
+	s.AskNativeLang(ctx, b, update)
 }
 
-func (s *CommandSet) askNativeLang(ctx context.Context, b *bot.Bot, update *models.Update) {
+func (s *CommandSet) AskNativeLang(ctx context.Context, b *bot.Bot, update *models.Update) {
 	text := "🇬🇧 Please select your native language.\n\n" +
 		"🇺🇦 Оберіть вашу рідну мову:\n\n" +
 		"🇩🇪 Wählen Sie Ihre Muttersprache aus:\n\n" +
 		"🇪🇸 Selecciona tu lengua materna:\n\n" +
 		"👇 Tap your language below to continue."
 
-	TGbot.SendPrompt(
+	TGbot.SendMessage(
 		ctx,
 		b,
-		update.Message,
+		update.Message.Chat.ID,
 		text,
 		s.tgKeyboard.GetLangsKeyboard(b, s.onNativeLangAndAskLangToLearn, "native"),
 	)
@@ -82,10 +82,10 @@ func (s *CommandSet) onNativeLangAndAskLangToLearn(
 	}
 
 	s.userService.InitUser(user.ChatID)
-	s.askLangToStudy(ctx, b, mes)
+	s.AskLangToStudy(ctx, b, mes)
 }
 
-func (s *CommandSet) askLangToStudy(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage) {
+func (s *CommandSet) AskLangToStudy(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage) {
 	TGbot.SendPrompt(
 		ctx,
 		b,

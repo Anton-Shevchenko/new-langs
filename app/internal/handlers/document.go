@@ -16,7 +16,7 @@ func (h *TGHandler) handleDocument(ctx context.Context, b *bot.Bot, update *mode
 	document := update.Message.Document
 
 	if document.MimeType != "text/plain" {
-		TGbot.SendMessage(ctx, b, user.ChatID, "Book has to be in .txt format")
+		TGbot.SendMessage(ctx, b, user.ChatID, "Book has to be in .txt format", nil)
 
 	}
 

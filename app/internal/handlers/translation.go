@@ -41,7 +41,7 @@ func (h *TGHandler) processTranslation(
 ) {
 	if !translation.IsValid && len(strings.Fields(update.Message.Text)) == 1 {
 		if !h.handleSpellingMistakes(ctx, b, update) {
-			TGbot.SendMessage(ctx, b, update.Message.Chat.ID, translation.SimpleString())
+			TGbot.SendMessage(ctx, b, update.Message.Chat.ID, translation.SimpleString(), nil)
 		}
 	} else {
 		h.tgMessage.SendWordView(
