@@ -92,7 +92,7 @@ func initDependencies(ctx context.Context) *bot.Bot {
 	tgKeyboard := tg_keyboard.NewTGKeyboard()
 	tgMessage := tg_msg.NewTGMessageService(b, tgKeyboard)
 
-	wordService := service.NewWordService(wordRepo)
+	wordService := service.NewWordService(wordRepo, tgMessage)
 
 	tgHandler := handlers.NewTGHandler(tgKeyboard, tgMessage, wordService, wordRepo, userRepo, userService, readerService)
 	commandSet := command.NewCommandSet(userService, userRepo, tgKeyboard, wordRepo, tgHandler)
@@ -140,6 +140,7 @@ func initDependencies(ctx context.Context) *bot.Bot {
 				tgHandler.OnWordList,
 				tgHandler.HandleBack,
 				tgHandler.HandleBooks,
+				tgHandler.OnTestMe,
 			),
 		})
 

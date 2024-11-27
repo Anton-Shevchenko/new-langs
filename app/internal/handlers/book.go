@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"langs/internal/tg_bot/tg_keyboard"
@@ -21,8 +20,6 @@ func (h *TGHandler) HandleBooks(ctx context.Context, b *bot.Bot, update *models.
 	for _, book := range books {
 		listItems = append(listItems, &tg_keyboard.ListItem{Id: book.ID, Data: book.Name})
 	}
-
-	fmt.Println("listtt", listItems)
 
 	booksKeyboard := h.tgKeyboard.GetListingKeyboard(
 		b,
@@ -48,11 +45,8 @@ func (h *TGHandler) HandleBook(
 	user := h.getUserFromContextMsg(ctx, b, mes)
 
 	bookId, err := strconv.Atoi(string(data))
-	fmt.Println("BOOOOOOK_UD", bookId)
-
 	user.BookId = int64(bookId)
 
-	fmt.Println("BOOOOOOK_UD 2", user.BookId)
 	h.userRepository.Update(user)
 	if err != nil {
 		h.handleError(ctx, b, user.BookId, err.Error())

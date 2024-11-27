@@ -3,9 +3,6 @@ package jobs
 import (
 	"github.com/go-telegram/ui/keyboard/inline"
 	"langs/internal/interfaces"
-	"langs/internal/model"
-	"math/rand"
-	"time"
 )
 
 type SendWordJob struct {
@@ -26,12 +23,6 @@ func NewSendWordJob(
 	}
 }
 
-type WordOption struct {
-	Word            string
-	Translation     string
-	TranslationLang string
-}
-
 func (j *SendWordJob) Execute(handle inline.OnSelect) {
 	users, err := j.userRepository.GetAllByInterval(30)
 	if err != nil {
@@ -41,49 +32,4 @@ func (j *SendWordJob) Execute(handle inline.OnSelect) {
 	for _, user := range users {
 		j.sendTest(user, handle)
 	}
-}
-
-func (j *SendWordJob) sendTest(user *model.User, handle inline.OnSelect) {
-	word, err := j.wordRepository.GetRandomWordByChatId(user.ChatId)
-
-	if err != nil {
-		return
-	}
-
-	pair := [2]*WordOption{
-		{Word: word.Value, Translation: word.Translation, TranslationLang: word.TranslationLang},
-		{Word: word.Translation, Translation: word.Value, TranslationLang: word.ValueLang},
-	}
-
-	randomWord := j.getRandomWordOption(pair)
-	translations, err := j.wordRepository.GetRandomTranslationsByChatId(
-		user.ChatId,
-		randomWord.Translation,
-		randomWord.TranslationLang,
-		3,
-	)
-	translations = append(translations, randomWord.Translation)
-
-	if err != nil {
-		return
-	}
-
-	j.messengerService.SendWordTest(user.ChatId, handle, randomWord.Word, j.shuffleTranslations(translations))
-}
-
-func (j *SendWordJob) getRand() *rand.Rand {
-	source := rand.NewSource(time.Now().UnixNano())
-	return rand.New(source)
-}
-
-func (j *SendWordJob) getRandomWordOption(pair [2]*WordOption) *WordOption {
-	return pair[j.getRand().Intn(len(pair))]
-}
-
-func (j *SendWordJob) shuffleTranslations(slice []string) []string {
-	j.getRand().Shuffle(len(slice), func(i, j int) {
-		slice[i], slice[j] = slice[j], slice[i]
-	})
-
-	return slice
 }

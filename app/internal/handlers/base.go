@@ -119,6 +119,7 @@ func (h *TGHandler) getUserFromContext(ctx context.Context, b *bot.Bot, update *
 
 func (h *TGHandler) getUserFromContextMsg(ctx context.Context, b *bot.Bot, msg models.MaybeInaccessibleMessage) *model.User {
 	user, err := h.userService.GetUserFromContext(ctx)
+
 	if err != nil {
 		h.handleError(ctx, b, msg.Message.Chat.ID, "User context is invalid")
 		panic("User context is invalid")

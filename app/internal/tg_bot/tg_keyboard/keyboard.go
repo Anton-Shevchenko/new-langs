@@ -5,6 +5,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/ui/keyboard/inline"
 	"github.com/go-telegram/ui/keyboard/reply"
+	"langs/internal/tg_bot/helper"
 	"strconv"
 )
 
@@ -72,7 +73,7 @@ func (r *TGKeyboard) GetAnswerOptionsKeyboard(
 	for _, option := range options {
 		keyboard.
 			Row().
-			Button(option, []byte(option), onSelect)
+			Button(option, []byte(helper.DataToString(sourceWordId, option)), onSelect)
 	}
 
 	return keyboard
@@ -83,9 +84,12 @@ func (r *TGKeyboard) InitMenuKeyboard(
 	onWordList bot.HandlerFunc,
 	onBack bot.HandlerFunc,
 	onBook bot.HandlerFunc,
+	onTestMe bot.HandlerFunc,
 ) *reply.ReplyKeyboard {
 	return reply.New(reply.IsSelective()).
 		Button("List", b, bot.MatchTypeExact, onWordList).
+		Row().
+		Button("Test me", b, bot.MatchTypeExact, onTestMe).
 		Row().
 		Button("Back", b, bot.MatchTypeExact, onBack).
 		Row().

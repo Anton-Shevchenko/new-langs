@@ -1,19 +1,28 @@
 package service
 
 import (
+	"github.com/go-telegram/ui/keyboard/inline"
+	"langs/internal/interfaces"
 	"langs/internal/model"
 	"langs/internal/repository/word_repository"
 	"langs/pkg/language_detector"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 type WordService struct {
-	wordRepository *word_repository.WordRepository
+	wordRepository   *word_repository.WordRepository
+	messengerService interfaces.MessengerService
 }
 
-func NewWordService(wordRepository *word_repository.WordRepository) *WordService {
+func NewWordService(
+	wordRepository *word_repository.WordRepository,
+	messengerService interfaces.MessengerService,
+) *WordService {
 	return &WordService{
-		wordRepository: wordRepository,
+		wordRepository:   wordRepository,
+		messengerService: messengerService,
 	}
 }
 
@@ -58,4 +67,67 @@ func (s *WordService) AddWord(source, translation string, user *model.User) (*mo
 	}
 
 	return nil, nil
+}
+
+func (s *WordService) SendTest(user *model.User, handle inline.OnSelect) {
+	word, err := s.wordRepository.GetRandomWordByChatId(user.ChatId)
+
+	if err != nil {
+		return
+	}
+
+	pair := [2]*model.WordOption{
+		{
+			WordID:          word.ID,
+			Word:            word.Value,
+			Translation:     word.Translation,
+			TranslationLang: word.TranslationLang,
+			WordLang:        word.ValueLang,
+		},
+		{
+			WordID:          word.ID,
+			Word:            word.Translation,
+			Translation:     word.Value,
+			TranslationLang: word.ValueLang,
+			WordLang:        word.TranslationLang,
+		},
+	}
+
+	randomWord := s.getRandomWordOption(pair)
+
+	translations, err := s.wordRepository.GetRandomTranslationsByChatId(
+		user.ChatId,
+		randomWord.Translation,
+		randomWord.TranslationLang,
+		3,
+	)
+	translations = append(translations, randomWord.Translation)
+
+	if err != nil {
+		return
+	}
+
+	s.messengerService.SendWordTest(
+		user.ChatId,
+		handle,
+		randomWord,
+		s.shuffleTranslations(translations),
+	)
+}
+
+func (s *WordService) getRand() *rand.Rand {
+	source := rand.NewSource(time.Now().UnixNano())
+	return rand.New(source)
+}
+
+func (s *WordService) getRandomWordOption(pair [2]*model.WordOption) *model.WordOption {
+	return pair[s.getRand().Intn(len(pair))]
+}
+
+func (s *WordService) shuffleTranslations(slice []string) []string {
+	s.getRand().Shuffle(len(slice), func(i, j int) {
+		slice[i], slice[j] = slice[j], slice[i]
+	})
+
+	return slice
 }

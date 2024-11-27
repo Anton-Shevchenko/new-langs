@@ -12,6 +12,14 @@ type Word struct {
 	TranslationLang string `json:"translation_lang"`
 }
 
+type WordOption struct {
+	WordID          int64
+	Word            string
+	Translation     string
+	WordLang        string
+	TranslationLang string
+}
+
 type TranslationPair struct {
 	Source []string `json:"source"`
 }

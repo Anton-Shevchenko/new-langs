@@ -43,7 +43,7 @@ type WordRepository interface {
 }
 
 type MessengerService interface {
-	SendWordTest(chatId int64, handle inline.OnSelect, word string, translations []string)
+	SendWordTest(chatId int64, handle inline.OnSelect, word *model.WordOption, translations []string)
 }
 
 type CommandSetInterface interface {

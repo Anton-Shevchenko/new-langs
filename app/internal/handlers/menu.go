@@ -18,6 +18,7 @@ func (h *TGHandler) HandleBack(ctx context.Context, b *bot.Bot, update *models.U
 			h.OnWordList,
 			h.HandleBack,
 			h.HandleBooks,
+			h.OnTestMe,
 		),
 	})
 }

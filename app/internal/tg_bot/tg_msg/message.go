@@ -6,6 +6,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/go-telegram/ui/keyboard/inline"
+	"langs/internal/consts"
 	"langs/internal/model"
 	"langs/internal/tg_bot/tg_keyboard"
 	"langs/pkg/formatter"
@@ -64,14 +65,14 @@ func (tgm *TGMessageService) handleError(err error) {
 func (tgm *TGMessageService) SendWordTest(
 	chatId int64,
 	handle inline.OnSelect,
-	word string,
+	word *model.WordOption,
 	translations []string,
 ) {
 	err := tgm.sendMessage(
 		context.Background(),
 		chatId,
-		word,
-		tgm.keyboard.GetAnswerOptionsKeyboard(tgm.B, 1, handle, translations),
+		consts.LangFlags[word.WordLang]+" - "+word.Word+"\n"+consts.LangFlags[word.TranslationLang]+" - ?",
+		tgm.keyboard.GetAnswerOptionsKeyboard(tgm.B, word.WordID, handle, translations),
 	)
 	tgm.handleError(err)
 }
