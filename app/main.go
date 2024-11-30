@@ -133,7 +133,7 @@ func initDependencies(ctx context.Context) *bot.Bot {
 	}
 
 	c := cron.New()
-	c.AddFunc("* * * * *", func() {
+	c.AddFunc("*/59 * * * *", func() {
 		job := jobs.NewSendWordJob(wordService, userRepo)
 		job.Execute(tgHandler.OnTestAnswer)
 		log.Println("Scheduler started. The task will run every 59 minutes.")
