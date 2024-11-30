@@ -1,20 +1,4 @@
 services:
-  go-app:
-    image: cosmtrek/air
-    working_dir: /app
-    container_name: app
-    restart: "on-failure"
-    depends_on:
-      - 'db'
-    environment:
-      - PORT=443
-    ports:
-      - '443:443'
-    volumes:
-      - './app/:/app/'
-    networks:
-      - app-network
-
   db:
     image: postgres:15
     container_name: db
@@ -26,7 +10,30 @@ services:
       - "5432:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
+    networks:
+      - app-network
+
+  go-app:
+    image: cosmtrek/air
+    working_dir: /app
+    container_name: app
+    restart: "on-failure"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PORT=443
+    ports:
+      - '443:443'
+    volumes:
+      - './app/:/app/'
     networks:
       - app-network
 
