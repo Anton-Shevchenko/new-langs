@@ -25,7 +25,6 @@ type TranslateResult struct {
 }
 
 func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) {
-
 	encodedSource, err := encodeURI(source)
 	if err != nil {
 		return nil, err
@@ -38,64 +37,52 @@ func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) 
 	}
 
 	response, err := parseResponse(body)
-
 	if err != nil {
 		return nil, err
 	}
 
-	var translateResult TranslateResult
-	translateResult.Translations = extractTranslations(response)
-	translateResult.SourceWord = source
-	translateResult.SourceLang = sourceLang
-	translateResult.TranslationLang = targetLang
-	fields := strings.Fields(source)
-	translateResult.IsSimpleWord = len(fields) == 1
-	fmt.Println("LEEEEEEттттттттттт", len(response))
-	if (len(response) >= 12 || sourceLang == "uk") && response[0] != nil {
-		fmt.Println("LEEEEEEn", len(response), response[2], targetLang, sourceLang)
-		firstElement, ok := response[0].([]interface{})
+	translateResult := &TranslateResult{
+		SourceWord:      source,
+		SourceLang:      sourceLang,
+		TranslationLang: targetLang,
+		Translations:    extractTranslations(response),
+		IsSimpleWord:    len(strings.Fields(source)) == 1,
+		IsValid:         false,
+	}
 
-		if ok {
-			responseLangBlock, ok := response[8].([]interface{})
-			fmt.Println("AAAAA000000", responseLangBlock)
-			if ok {
-				responseLangArr, ok := responseLangBlock[0].([]interface{})
-				fmt.Println("AAAAA1", responseLangArr)
-				if !ok {
-					fmt.Println("AAAAA2", responseLangArr)
-					translateResult.IsValid = false
-					return &translateResult, nil
-				}
-				responseLang := responseLangArr[0]
-				fmt.Println("AAAAA3", responseLang, targetLang, sourceLang)
-				if responseLang != targetLang && responseLang != sourceLang {
-					fmt.Println("AAAAA4", responseLang, targetLang, sourceLang)
-					translateResult.IsValid = false
-					return &translateResult, nil
-				}
+	if len(response) < 12 && sourceLang != "uk" {
+		return translateResult, nil
+	}
+
+	firstElement, ok := safeGetArray(response, 0)
+	if !ok || len(firstElement) <= 1 {
+		return translateResult, nil
+	}
+
+	wordTranscription, ok := safeGetArray(firstElement, 1)
+	if !ok {
+		return translateResult, nil
+	}
+
+	responseLangBlock, ok := safeGetArray(response, 8)
+	if ok {
+		if responseLangArr, ok := safeGetArray(responseLangBlock, 0); ok {
+			responseLang, ok := safeGetString(responseLangArr, 0)
+			if ok && responseLang != targetLang && responseLang != sourceLang {
+				return translateResult, nil
 			}
-
-			fmt.Println("BBBB", firstElement)
-
-			wordTranscription, ok := firstElement[1].([]interface{})
-			if ok && len(wordTranscription) >= 4 {
-				translateResult.Transcription = wordTranscription[3].(string)
-			}
-		} else {
-			fmt.Println("AAAAA5")
-			translateResult.IsValid = false
-			return &translateResult, nil
 		}
-		translationBlock, ok := firstElement[0].([]interface{})
+	}
 
-		if ok && sourceLang == "uk" && len(translationBlock) > 5 {
-			translateResult.IsValid = false
-			return &translateResult, nil
+	if len(wordTranscription) >= 4 {
+		if transcription, ok := safeGetString(wordTranscription, 3); ok {
+			translateResult.Transcription = transcription
 		}
-	} else {
-		fmt.Println("AAAAA7")
-		translateResult.IsValid = false
-		return &translateResult, nil
+	}
+
+	translationBlock, ok := safeGetArray(firstElement, 0)
+	if ok && sourceLang == "uk" && len(translationBlock) > 5 {
+		return translateResult, nil
 	}
 
 	translateResult.IsValid = true
@@ -105,7 +92,7 @@ func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) 
 		translateResult.Examples = extractExamples(response)
 	}
 
-	return &translateResult, nil
+	return translateResult, nil
 }
 
 func encodeURI(s string) (string, error) {
@@ -201,10 +188,7 @@ func (tr TranslateResult) SimpleString() string {
 }
 
 func buildTranslateURL(encodedSource, sourceLang, targetLang string) string {
-	url := fmt.Sprintf(
-		"https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=ex&dt=md&sl=%s&tl=%s&dt=t&dt=rm&dt=at&q=%s",
-		sourceLang, targetLang, encodedSource,
-	)
+	url := fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=ex&dt=md&sl=%s&tl=%s&dt=t&dt=rm&dt=at&q=%s", sourceLang, targetLang, encodedSource)
 
 	fmt.Println(url)
 	return url
@@ -316,15 +300,27 @@ func extractExamples(response []interface{}) []string {
 }
 
 func WriteSourceWordString(sb *strings.Builder, sourceWord, sourceLang string) {
-	sb.WriteString(
-		fmt.Sprintf("<strong>%s Source Word:</strong> %s\n", consts.LangFlags[sourceLang], sourceWord),
-	)
+	sb.WriteString(fmt.Sprintf("<strong>%s Source Word:</strong> %s\n", consts.LangFlags[sourceLang], sourceWord))
 }
 
 func WriteTranslationString(sb *strings.Builder, targetLang string) {
-	sb.WriteString(
-		fmt.Sprintf(
-			"<strong>%s Translations:</strong>\n",
-			consts.LangFlags[targetLang]),
-	)
+	sb.WriteString(fmt.Sprintf("<strong>%s Translations:</strong>\n", consts.LangFlags[targetLang]))
+}
+
+func safeGetArray(data []interface{}, index int) ([]interface{}, bool) {
+	if index >= 0 && index < len(data) {
+		if arr, ok := data[index].([]interface{}); ok {
+			return arr, true
+		}
+	}
+	return nil, false
+}
+
+func safeGetString(data []interface{}, index int) (string, bool) {
+	if index >= 0 && index < len(data) {
+		if str, ok := data[index].(string); ok {
+			return str, true
+		}
+	}
+	return "", false
 }

@@ -6,26 +6,27 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/joho/godotenv"
+	"github.com/robfig/cron/v3"
 	"langs/internal/command"
 	"langs/internal/handlers"
+	"langs/internal/interfaces"
+	"langs/internal/jobs"
+	"langs/internal/model"
 	"langs/internal/repository/book_part_repository"
 	"langs/internal/repository/book_progress_repository"
 	"langs/internal/repository/book_repository"
+	"langs/internal/repository/user_repository"
 	"langs/internal/repository/word_repository"
+	"langs/internal/service"
 	"langs/internal/tg_bot/tg_keyboard"
 	"langs/internal/tg_bot/tg_msg"
 	"langs/pkg/TGbot"
 	"langs/pkg/book_reader"
+	"langs/pkg/db"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-
-	"langs/internal/interfaces"
-	"langs/internal/model"
-	"langs/internal/repository/user_repository"
-	"langs/internal/service"
-	"langs/pkg/db"
 )
 
 var (
@@ -107,24 +108,9 @@ func initDependencies(ctx context.Context) *bot.Bot {
 
 	b, err = bot.New(botToken, botOptions...)
 
-	//b.SetWebhook(ctx, &bot.SetWebhookParams{
-	//	URL: "https://anton-shevchenko.com/webhook",
-	//})
-	//
-	//go func() {
-	//	log.Println("Starting server on :443")
-	//	err = http.ListenAndServeTLS(":443", "fullchain.crt", "server.key", b.WebhookHandler())
-	//	if err != nil {
-	//		log.Fatalf("Failed to start server: %v", err)
-	//	}
-	//}()
-
 	startServer(ctx, b)
 
 	tgMessage.B = b
-
-	//job := jobs.NewSendWordJob(wordRepo, tgMessage, userRepo)
-	//job.Execute(tgHandler.Te)
 
 	chatIds, err := userRepo.GetAllChatIDs()
 	if err != nil {
@@ -145,6 +131,15 @@ func initDependencies(ctx context.Context) *bot.Bot {
 		})
 
 	}
+
+	c := cron.New()
+	c.AddFunc("* * * * *", func() {
+		job := jobs.NewSendWordJob(wordService, userRepo)
+		job.Execute(tgHandler.OnTestAnswer)
+		log.Println("Scheduler started. The task will run every 59 minutes.")
+	})
+	c.Start()
+	log.Println("Scheduler started. The task will run every 59 minutes.")
 
 	return b
 }

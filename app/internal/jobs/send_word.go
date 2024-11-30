@@ -3,23 +3,21 @@ package jobs
 import (
 	"github.com/go-telegram/ui/keyboard/inline"
 	"langs/internal/interfaces"
+	"langs/internal/service"
 )
 
 type SendWordJob struct {
-	wordRepository   interfaces.WordRepository
-	userRepository   interfaces.UserRepository
-	messengerService interfaces.MessengerService
+	wordService    *service.WordService
+	userRepository interfaces.UserRepository
 }
 
 func NewSendWordJob(
-	wordRepository interfaces.WordRepository,
-	messengerService interfaces.MessengerService,
+	wordService *service.WordService,
 	userRepository interfaces.UserRepository,
 ) *SendWordJob {
 	return &SendWordJob{
-		wordRepository:   wordRepository,
-		messengerService: messengerService,
-		userRepository:   userRepository,
+		wordService:    wordService,
+		userRepository: userRepository,
 	}
 }
 
@@ -30,6 +28,6 @@ func (j *SendWordJob) Execute(handle inline.OnSelect) {
 	}
 
 	for _, user := range users {
-		j.sendTest(user, handle)
+		j.wordService.SendTest(user, handle)
 	}
 }

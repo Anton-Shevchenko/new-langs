@@ -35,11 +35,12 @@ type BookRepository interface {
 type WordRepository interface {
 	Create(word *model.Word) error
 	AllByChatId(chatId int64, limit, offset int) ([]*model.Word, error)
-	GetRandomWordByChatId(chatId int64) (*model.Word, error)
+	GetRandomWordByChatIdAndRate(chatId int64) (*model.Word, error)
 	GetRandomTranslationsByChatId(chatId int64, exception, lang string, limit int) ([]string, error)
 	CheckSimilarWord(word *model.Word) (*model.Word, error)
 	Delete(id int64) error
 	GetCountByChatId(chatId int64) int64
+	Save(word *model.Word) error
 }
 
 type MessengerService interface {

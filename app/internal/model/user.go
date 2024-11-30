@@ -8,6 +8,7 @@ type User struct {
 	TargetLang    string `json:"target_lang,omitempty"`
 	WaitingFor    string `json:"waiting_for,omitempty"`
 	TestInterval  uint16 `json:"test_interval,omitempty" gorm:"default:60"`
+	TargetRate    uint16 `json:"target_rate,omitempty" gorm:"default:5"`
 }
 
 func (u *User) GetUserLangs() []string {

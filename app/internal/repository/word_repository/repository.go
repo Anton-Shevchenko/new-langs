@@ -19,6 +19,10 @@ func (r *WordRepository) Create(word *model.Word) error {
 	return r.db.Create(&word).Error
 }
 
+func (r *WordRepository) Save(word *model.Word) error {
+	return r.db.Where("id = ?", word.ID).Save(&word).Error
+}
+
 func (r *WordRepository) AllByChatId(chatId int64, limit, offset int) ([]*model.Word, error) {
 	var words []*model.Word
 
@@ -56,10 +60,10 @@ func (r *WordRepository) Delete(id int64) error {
 	return r.db.Delete(&model.Word{}, id).Error
 }
 
-func (r *WordRepository) GetRandomWordByChatId(chatId int64) (*model.Word, error) {
+func (r *WordRepository) GetRandomWordByChatIdAndRate(chatId int64, rate uint16) (*model.Word, error) {
 	var word model.Word
 
-	return &word, r.db.Where("chat_id = ?", chatId).Order("RANDOM()").First(&word).Error
+	return &word, r.db.Where("chat_id = ? and rate < ?", chatId, rate).Order("RANDOM()").First(&word).Error
 }
 
 func (r *WordRepository) GetRandomTranslationsByChatId(

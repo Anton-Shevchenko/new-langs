@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"langs/internal/consts"
@@ -15,12 +14,7 @@ import (
 
 func (h *TGHandler) processNewWord(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User) {
 	newWord := strings.ToLower(strings.TrimSpace(update.Message.Text))
-	fmt.Println("NEW WORD", newWord, user)
 
-	if len(user.GetUserLangs()) < 2 {
-		fmt.Println("Invalid user")
-		return
-	}
 	fromLang, err := language_detector.Detect(newWord, user.GetUserLangs())
 	if err != nil {
 		h.handleError(ctx, b, update.Message.Chat.ID, "Language detection failed")
@@ -28,6 +22,18 @@ func (h *TGHandler) processNewWord(ctx context.Context, b *bot.Bot, update *mode
 	}
 
 	langTo := user.GetOppositeLang(fromLang)
+
+	if len(newWord) >= 10 {
+		_, err := h.readerService.AddLongRead(newWord, getFirstWord(newWord), user)
+		if err != nil {
+			h.handleError(ctx, b, update.Message.Chat.ID, "Long read failed")
+			return
+		}
+		h.tgMessage.SendOrEditMessage(ctx, user.ChatId, 0, "Saved to reader", nil)
+
+		return
+	}
+
 	translation, err := wordTranslator.Translate(newWord, fromLang, langTo)
 	if err != nil {
 		h.handleError(ctx, b, update.Message.Chat.ID, "Translation failed")
@@ -91,4 +97,12 @@ func (h *TGHandler) handleDeleteWord(
 	msgText := word.Value + " Deleted"
 
 	h.tgMessage.SendOrEditMessage(ctx, chatId, mes.Message.ID, msgText, nil)
+}
+
+func getFirstWord(s string) string {
+	words := strings.Fields(s)
+	if len(words) > 0 {
+		return words[0]
+	}
+	return ""
 }

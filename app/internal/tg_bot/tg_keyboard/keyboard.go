@@ -88,12 +88,10 @@ func (r *TGKeyboard) InitMenuKeyboard(
 ) *reply.ReplyKeyboard {
 	return reply.New(reply.IsSelective()).
 		Button("List", b, bot.MatchTypeExact, onWordList).
-		Row().
 		Button("Test me", b, bot.MatchTypeExact, onTestMe).
 		Row().
 		Button("Back", b, bot.MatchTypeExact, onBack).
-		Row().
-		Button("Book", b, bot.MatchTypeExact, onBook)
+		Button("Reader", b, bot.MatchTypeExact, onBook)
 }
 
 func (r *TGKeyboard) InitReaderKeyboard(

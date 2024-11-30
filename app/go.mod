@@ -11,6 +11,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.4.1
 	github.com/pemistahl/lingua-go v1.4.0
 	github.com/robertkrimen/otto v0.5.1
+	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/text v0.20.0
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12

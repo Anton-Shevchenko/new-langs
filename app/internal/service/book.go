@@ -71,6 +71,29 @@ func (s *ReaderService) AddBook(filePath, name string, user *model.User) (*model
 	return nil, nil
 }
 
+func (s *ReaderService) AddLongRead(longRead, name string, user *model.User) (*model.Book, error) {
+	book := &model.Book{
+		ChatId: user.ChatId,
+		Name:   name,
+	}
+	err := s.bookRepository.Create(book)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	s.bookProgressRepository.Create(&model.BookProgress{
+		BookId:     book.ID,
+		BookPartId: 1,
+	})
+
+	parts := s.reader.SplitBookFromString(longRead, 100)
+	s.batchInsert(parts, book, 100)
+	book.Len = len(parts)
+	s.bookRepository.Update(book)
+
+	return nil, nil
+}
+
 func (s *ReaderService) batchInsert(parts []*book_reader.BookPart, book *model.Book, batchSize int) {
 	for _, part := range parts {
 		s.bookPartRepository.Add(&model.BookPart{

@@ -2,7 +2,6 @@ package book_reader
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -26,15 +25,25 @@ func NewBookReader(db *gorm.DB) *BookReader {
 func (br *BookReader) ReadAndSplitBook(filePath string, wordLimit int) []*BookPart {
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println("Failed to open the book file: %v", err)
 		log.Fatalf("Failed to open the book file: %v", err)
 	}
 	defer file.Close()
 
-	var parts []*BookPart
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanWords)
 
+	return br.splitContent(scanner, wordLimit)
+}
+
+func (br *BookReader) SplitBookFromString(content string, wordLimit int) []*BookPart {
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	scanner.Split(bufio.ScanWords)
+
+	return br.splitContent(scanner, wordLimit)
+}
+
+func (br *BookReader) splitContent(scanner *bufio.Scanner, wordLimit int) []*BookPart {
+	var parts []*BookPart
 	var currentPart strings.Builder
 	wordCount := 0
 
@@ -55,7 +64,7 @@ func (br *BookReader) ReadAndSplitBook(filePath string, wordLimit int) []*BookPa
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatalf("Error reading the book file: %v", err)
+		log.Fatalf("Error reading the content: %v", err)
 	}
 
 	return parts

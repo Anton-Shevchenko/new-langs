@@ -87,7 +87,9 @@ func (h *TGHandler) DefaultHandler(ctx context.Context, b *bot.Bot, update *mode
 		return
 	}
 
-	if len(user.GetUserLangs()) > 1 && (user.GetUserLangs()[0] == "" || user.GetUserLangs()[1] == "") {
+	langs := user.GetUserLangs()
+
+	if len(langs) < 2 || (len(langs) > 1 && (langs[0] == "" || langs[1] == "")) {
 		h.commandSet.Start(ctx, b, update)
 		return
 	}

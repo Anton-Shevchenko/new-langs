@@ -70,7 +70,7 @@ func (s *WordService) AddWord(source, translation string, user *model.User) (*mo
 }
 
 func (s *WordService) SendTest(user *model.User, handle inline.OnSelect) {
-	word, err := s.wordRepository.GetRandomWordByChatId(user.ChatId)
+	word, err := s.wordRepository.GetRandomWordByChatIdAndRate(user.ChatId, user.TargetRate)
 
 	if err != nil {
 		return
