@@ -8,7 +8,7 @@ import (
 )
 
 func NewPostgresConnection(config string) *gorm.DB {
-	dbURL := "host=db user=postgres password=password dbname=main port=5432 sslmode=disable"
+	dbURL := "host=db user=postgres password=password dbname=my_database port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	//db.Session(&gorm.Session{FullSaveAssociations: false})
 
