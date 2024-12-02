@@ -23,7 +23,7 @@ func (h *TGHandler) processNewWord(ctx context.Context, b *bot.Bot, update *mode
 
 	langTo := user.GetOppositeLang(fromLang)
 
-	if len(newWord) >= 10 {
+	if len(newWord) >= 100 {
 		_, err := h.readerService.AddLongRead(newWord, getFirstWord(newWord), user)
 		if err != nil {
 			h.handleError(ctx, b, update.Message.Chat.ID, "Long read failed")
