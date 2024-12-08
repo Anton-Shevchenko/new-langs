@@ -176,6 +176,7 @@ func startServerWithSSL(ctx context.Context, b *bot.Bot) {
 	go func() {
 		err := http.ListenAndServeTLS(":443", "fullchain.crt", "server.key", b.WebhookHandler())
 		http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+			log.Printf("Received request: %s %s\n", r.Method, r.URL.Path)
 			w.Write([]byte("Test GET endpoint is working"))
 		})
 		if err != nil {
