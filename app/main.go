@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 	"langs/internal/command"
 	"langs/internal/handlers"
@@ -36,13 +35,6 @@ var (
 )
 
 func main() {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-
-		return
-	}
 	ctx, cancel := setupSignalContext()
 	defer cancel()
 
@@ -59,13 +51,12 @@ func initDependencies(ctx context.Context) *bot.Bot {
 	var b *bot.Bot
 
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-
-	if botToken == "" {
-		botToken = "6631879525:AAFM7m_0W7IlW1d2II5rtE4-mCH16Pl-sY8"
-		//botToken = "6207869114:AAEFF8TKV24lJaUj6__m5kt4lT9dGj3BETY"
-	}
-
-	postgresConnection := db.NewPostgresConnection("")
+	postgresConnection := db.NewPostgresConnection(
+		fmt.Sprintf(
+			"host=db user=%s password=%s dbname=my_database port=5432 sslmode=disable",
+			os.Getenv("PG_USER"),
+			os.Getenv("PG_PASSWORD"),
+		))
 	postgresDB := db.NewDB(postgresConnection).DB
 
 	err := postgresDB.AutoMigrate(
@@ -190,9 +181,9 @@ func startBot(ctx context.Context, b *bot.Bot) {
 	if env == "prod" {
 		b.StartWebhook(ctx)
 	} else {
-		b.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
-			DropPendingUpdates: true,
-		})
+		//b.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
+		//	DropPendingUpdates: true,
+		//})
 		b.Start(ctx)
 	}
 }
