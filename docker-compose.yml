@@ -4,7 +4,7 @@ services:
     container_name: db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
       POSTGRES_DB: my_database
     ports:
       - "5432:5432"
@@ -19,7 +19,7 @@ services:
     networks:
       - app-network
 
-  app:
+  go-app:
     image: cosmtrek/air
     container_name: app
     working_dir: /app
@@ -29,6 +29,10 @@ services:
         condition: service_healthy
     environment:
       - PORT=443
+      - PG_PASSWORD=${PG_PASSWORD}
+      - ENV=${ENV}
+      - PG_USER=${PG_USER}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     ports:
       - "443:443"
     volumes:

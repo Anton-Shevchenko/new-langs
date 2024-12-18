@@ -2,3 +2,4 @@
 app/.bin
 app/go.sum
 app/tmp
+.env
