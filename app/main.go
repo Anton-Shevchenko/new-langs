@@ -26,12 +26,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 )
 
 var (
 	userService interfaces.UserService
 	user        *model.User
 	userRepo    interfaces.UserRepository
+	once        sync.Once
 )
 
 func main() {
@@ -108,6 +110,8 @@ func initDependencies(ctx context.Context) *bot.Bot {
 		return nil
 	}
 
+	InitCron(tgHandler, wordService, userRepo)
+
 	for _, id := range chatIds {
 		go b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: id,
@@ -122,15 +126,6 @@ func initDependencies(ctx context.Context) *bot.Bot {
 		})
 
 	}
-
-	c := cron.New()
-	c.AddFunc("*/59 * * * *", func() {
-		job := jobs.NewSendWordJob(wordService, userRepo)
-		job.Execute(tgHandler.OnTestAnswer)
-		log.Println("Scheduler started. The task will run every 59 minutes.")
-	})
-	c.Start()
-	log.Println("Scheduler started. The task will run every 59 minutes.")
 
 	return b
 }
@@ -179,11 +174,11 @@ func startServerWithSSL(ctx context.Context, b *bot.Bot) {
 func startBot(ctx context.Context, b *bot.Bot) {
 	env := os.Getenv("ENV")
 	if env == "prod" {
+		b.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
+			DropPendingUpdates: true,
+		})
 		b.StartWebhook(ctx)
 	} else {
-		//b.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
-		//	DropPendingUpdates: true,
-		//})
 		b.Start(ctx)
 	}
 }
@@ -197,4 +192,17 @@ func startServer(ctx context.Context, b *bot.Bot) {
 	} else {
 
 	}
+}
+
+func InitCron(tgHandler *handlers.TGHandler, wordService *service.WordService, userRepo interfaces.UserRepository) {
+	once.Do(func() {
+		c := cron.New()
+		c.AddFunc("*/59 * * * *", func() {
+			job := jobs.NewSendWordJob(wordService, userRepo)
+			job.Execute(tgHandler.OnTestAnswer)
+			log.Println("Scheduler started. The task will run every 59 minutes.")
+		})
+		c.Start()
+		log.Println("Scheduler started. The task will run every 59 minutes.")
+	})
 }
