@@ -41,6 +41,18 @@ func NewCommandSet(
 
 func (s *CommandSet) Start(ctx context.Context, b *bot.Bot, update *models.Update) {
 	s.AskNativeLang(ctx, b, update)
+
+	go b.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   "Choose an option:",
+		ReplyMarkup: s.tgKeyboard.InitMenuKeyboard(
+			b,
+			s.handler.OnWordList,
+			s.handler.HandleBack,
+			s.handler.HandleBooks,
+			s.handler.OnTestMe,
+		),
+	})
 }
 
 func (s *CommandSet) AskNativeLang(ctx context.Context, b *bot.Bot, update *models.Update) {
