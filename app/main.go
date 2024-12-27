@@ -155,9 +155,9 @@ func initUser(next bot.HandlerFunc) bot.HandlerFunc {
 }
 
 func startServerWithSSL(ctx context.Context, b *bot.Bot) {
-	b.SetWebhook(ctx, &bot.SetWebhookParams{
-		URL: "https://anton-shevchenko.com/webhook",
-	})
+	//b.SetWebhook(ctx, &bot.SetWebhookParams{
+	//	URL: "https://anton-shevchenko.com/webhook",
+	//})
 
 	go func() {
 		err := http.ListenAndServeTLS(":443", "fullchain.crt", "server.key", b.WebhookHandler())
@@ -189,7 +189,7 @@ func startServer(ctx context.Context, b *bot.Bot) {
 
 	fmt.Println("ENV", env)
 	if env == "prod" {
-		startServerWithSSL(ctx, b)
+		//startServerWithSSL(ctx, b)
 	} else {
 
 	}
