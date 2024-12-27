@@ -43,7 +43,7 @@ func (h *TGHandler) OnTestAnswer(
 	if correct {
 		word.Rate++
 	} else {
-		word.Rate++
+		word.Rate--
 	}
 
 	h.wordRepository.Save(word)
