@@ -174,10 +174,11 @@ func startServerWithSSL(ctx context.Context, b *bot.Bot) {
 func startBot(ctx context.Context, b *bot.Bot) {
 	env := os.Getenv("ENV")
 	if env == "prod" {
-		b.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
-			DropPendingUpdates: true,
-		})
-		b.StartWebhook(ctx)
+		//b.DeleteWebhook(ctx, &bot.DeleteWebhookParams{
+		//	DropPendingUpdates: true,
+		//})
+		//b.StartWebhook(ctx)
+		b.Start(ctx)
 	} else {
 		b.Start(ctx)
 	}
