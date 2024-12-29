@@ -23,7 +23,7 @@ func (h *TGHandler) processCustomTranslation(ctx context.Context, b *bot.Bot, up
 	customTranslation := strings.TrimSpace(update.Message.Text)
 
 	collisionWord, err := h.wordService.AddWord(sourceWord, customTranslation, user)
-	if err != nil || collisionWord.ID != 0 {
+	if err != nil || (collisionWord != nil && collisionWord.ID != 0) {
 		h.handleError(ctx, b, update.Message.Chat.ID, "You already have this word")
 		return
 	}
