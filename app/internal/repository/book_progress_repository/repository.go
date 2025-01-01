@@ -55,10 +55,12 @@ func (r *BookProgressRepository) Create(progress *model.BookProgress) error {
 
 func (r *BookProgressRepository) Increment(bookId int64) (*model.BookProgress, error) {
 	var progress model.BookProgress
+
 	err := r.db.
 		Model(&model.BookProgress{}).
 		Where("book_id = ?", bookId).
-		Update("book_part_id", gorm.Expr("book_part_id + ?", 1)).
+		Where("book_part_id < (SELECT MAX(id) FROM book_parts WHERE book_id = ?)", bookId).
+		Update("book_part_id", gorm.Expr("book_part_id + 1")).
 		Error
 
 	return &progress, err
@@ -69,8 +71,9 @@ func (r *BookProgressRepository) Decrement(bookId int64) (*model.BookProgress, e
 	err := r.db.
 		Model(&model.BookProgress{}).
 		Where("book_id = ?", bookId).
-		Update("book_part_id", gorm.Expr("book_part_id - ?", 1)).
+		Where("book_part_id > (SELECT MIN(id) FROM book_parts WHERE book_id = ?)", bookId).
+		Update("book_part_id", gorm.Expr("book_part_id - 1")).
 		Error
-
+	fmt.Println("dede", progress)
 	return &progress, err
 }

@@ -1,8 +1,11 @@
 package word_repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"langs/internal/model"
+	"math/rand"
+	"time"
 )
 
 type WordRepository struct {
@@ -61,9 +64,24 @@ func (r *WordRepository) Delete(id int64) error {
 }
 
 func (r *WordRepository) GetRandomWordByChatIdAndRate(chatId int64, rate uint16) (*model.Word, error) {
-	var word model.Word
+	var words []model.Word
+	if err := r.db.
+		Where("chat_id = ? AND rate < ?", chatId, rate).
+		Order("RANDOM()").
+		Limit(5).
+		Find(&words).
+		Error; err != nil {
+		return nil, err
+	}
 
-	return &word, r.db.Where("chat_id = ? and rate < ?", chatId, rate).Order("RANDOM()").First(&word).Error
+	if len(words) == 0 {
+		return nil, fmt.Errorf("no words found")
+	}
+
+	rGen := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	randomIndex := rGen.Intn(len(words))
+	return &words[randomIndex], nil
 }
 
 func (r *WordRepository) GetRandomTranslationsByChatId(
