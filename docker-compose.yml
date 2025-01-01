@@ -21,9 +21,8 @@ services:
 
   go-app:
     image: cosmtrek/air
-    container_name: app
+    container_name: go-app
     working_dir: /app
-    restart: on-failure
     depends_on:
       db:
         condition: service_healthy
@@ -33,8 +32,10 @@ services:
       - ENV=${ENV}
       - PG_USER=${PG_USER}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    restart: on-failure
     ports:
       - "443:443"
+    command: ["air", "--once"]
     volumes:
       - ./app:/app
     networks:
