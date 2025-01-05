@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"langs/internal/consts"
@@ -64,11 +65,13 @@ func (h *TGHandler) HandleWordView(
 		wordId,
 		h.handleDeleteWord,
 	)
+	user, _ := h.userRepository.First(chatId)
 
 	msgText := consts.LangFlags[word.ValueLang] + " " +
 		word.Value + "\n" +
 		consts.LangFlags[word.TranslationLang] + " " +
-		word.Translation
+		word.Translation + "\n" +
+		fmt.Sprintf("(%d/%d)", word.Rate, user.TargetRate)
 	h.tgMessage.SendOrEditMessage(ctx, chatId, 0, msgText, wordKeyboard)
 }
 
