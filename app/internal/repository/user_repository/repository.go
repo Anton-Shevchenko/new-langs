@@ -1,7 +1,6 @@
 package user_repository
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"langs/internal/interfaces"
 	"langs/internal/model"
@@ -52,7 +51,6 @@ func (r *userRepository) FirstOrCreate(chatId int64) (*model.User, error) {
 }
 
 func (r *userRepository) Update(user *model.User) error {
-	fmt.Println("UUUUUUU", user)
 	return r.db.Where("chat_id = ?", user.ChatId).Save(&user).Error
 }
 

@@ -103,8 +103,15 @@ func (h *TGHandler) handleError(ctx context.Context, b *bot.Bot, chatID int64, e
 
 func (h *TGHandler) handleText(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User) {
 	if user.IsAwaitingInput() {
-		h.processCustomTranslation(ctx, b, update, user)
-		return
+		if user.StateData.Scenario == model.CustomTranslationScenario {
+			h.processCustomTranslation(ctx, b, update, user)
+			return
+		}
+
+		if user.StateData.Scenario == model.WritingExamScenario {
+			h.OnWriteTestAnswer(ctx, b, update, user)
+			return
+		}
 	}
 
 	h.processNewWord(ctx, b, update, user)

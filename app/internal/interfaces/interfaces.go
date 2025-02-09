@@ -45,6 +45,7 @@ type WordRepository interface {
 
 type MessengerService interface {
 	SendWordTest(chatId int64, handle inline.OnSelect, word *model.WordOption, translations []string)
+	SendExam(chatId int64, handle inline.OnSelect, word *model.WordOption)
 }
 
 type CommandSetInterface interface {

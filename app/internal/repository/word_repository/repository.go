@@ -63,7 +63,7 @@ func (r *WordRepository) Delete(id int64) error {
 	return r.db.Delete(&model.Word{}, id).Error
 }
 
-func (r *WordRepository) GetRandomWordByChatIdAndRate(chatId int64, rate uint16) (*model.Word, error) {
+func (r *WordRepository) GetRandomWordByChatIdAndRateLimit(chatId int64, rate uint16) (*model.Word, error) {
 	var words []model.Word
 	if err := r.db.
 		Where("chat_id = ? AND rate < ?", chatId, rate).

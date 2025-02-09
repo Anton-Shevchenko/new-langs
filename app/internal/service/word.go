@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const defaultWriteExamsCount = 2
+
 type WordService struct {
 	wordRepository   *word_repository.WordRepository
 	messengerService interfaces.MessengerService
@@ -69,13 +71,14 @@ func (s *WordService) AddWord(source, translation string, user *model.User) (*mo
 	return nil, nil
 }
 
-func (s *WordService) SendTest(user *model.User, handle inline.OnSelect) {
-	word, err := s.wordRepository.GetRandomWordByChatIdAndRate(user.ChatId, user.TargetRate)
+func (s *WordService) SendTest(user *model.User, handle, handleWrite inline.OnSelect) {
+	word, err := s.wordRepository.GetRandomWordByChatIdAndRateLimit(user.ChatId, user.TargetRate)
 
 	if err != nil {
 		return
 	}
 
+	restOfAnswersToTarget := user.TargetRate - uint16(word.Rate)
 	pair := [2]*model.WordOption{
 		{
 			WordID:          word.ID,
@@ -91,6 +94,18 @@ func (s *WordService) SendTest(user *model.User, handle inline.OnSelect) {
 			TranslationLang: word.ValueLang,
 			WordLang:        word.TranslationLang,
 		},
+	}
+
+	if restOfAnswersToTarget <= defaultWriteExamsCount {
+		var nativeOption *model.WordOption
+		if pair[0].WordLang == user.NativeLang {
+			nativeOption = pair[0]
+		} else {
+			nativeOption = pair[1]
+		}
+
+		s.messengerService.SendExam(user.ChatId, handleWrite, nativeOption)
+		return
 	}
 
 	randomWord := s.getRandomWordOption(pair)

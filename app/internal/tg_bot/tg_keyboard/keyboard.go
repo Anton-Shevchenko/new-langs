@@ -79,6 +79,19 @@ func (r *TGKeyboard) GetAnswerOptionsKeyboard(
 	return keyboard
 }
 
+func (r *TGKeyboard) GetWriteTestKeyboard(
+	b *bot.Bot,
+	sourceWordId int64,
+	onSelect inline.OnSelect,
+) *inline.Keyboard {
+	return inline.New(
+		b,
+		inline.NoDeleteAfterClick(),
+	).
+		Row().
+		Button("Write", []byte(strconv.Itoa(int(sourceWordId))), onSelect)
+}
+
 func (r *TGKeyboard) InitMenuKeyboard(
 	b *bot.Bot,
 	onWordList bot.HandlerFunc,

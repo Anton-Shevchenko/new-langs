@@ -77,6 +77,20 @@ func (tgm *TGMessageService) SendWordTest(
 	tgm.handleError(err)
 }
 
+func (tgm *TGMessageService) SendExam(
+	chatId int64,
+	handle inline.OnSelect,
+	word *model.WordOption,
+) {
+	err := tgm.sendMessage(
+		context.Background(),
+		chatId,
+		consts.LangFlags[word.WordLang]+" - "+word.Word+"\n"+consts.LangFlags[word.TranslationLang]+" - ?",
+		tgm.keyboard.GetWriteTestKeyboard(tgm.B, word.WordID, handle),
+	)
+	tgm.handleError(err)
+}
+
 func (tgm *TGMessageService) SendWordView(
 	ctx context.Context,
 	sourceWord string,

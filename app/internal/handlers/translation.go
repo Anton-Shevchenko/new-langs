@@ -11,9 +11,14 @@ import (
 	"strings"
 )
 
-func (h *TGHandler) processCustomTranslation(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User) {
-	sourceWord := user.WaitingFor
-	user.WaitingFor = ""
+func (h *TGHandler) processCustomTranslation(
+	ctx context.Context,
+	b *bot.Bot,
+	update *models.Update,
+	user *model.User,
+) {
+	sourceWord := user.StateData.Value
+	user.StateData.Value = ""
 
 	if err := h.userRepository.Update(user); err != nil {
 		h.handleError(ctx, b, update.Message.Chat.ID, "User update error")
@@ -68,7 +73,7 @@ func (h *TGHandler) handleCustomTranslation(
 		return
 	}
 
-	user.WaitingFor = string(data)
+	user.StateData.Value = string(data)
 	err = h.userRepository.Update(user)
 	if err != nil {
 		h.handleError(ctx, b, mes.Message.Chat.ID, "Failed to update user data")

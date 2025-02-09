@@ -196,12 +196,13 @@ func startServer(ctx context.Context, b *bot.Bot) {
 }
 
 func InitCron(tgHandler *handlers.TGHandler, wordService *service.WordService, userRepo interfaces.UserRepository) {
+	job := jobs.NewSendWordJob(wordService, userRepo)
+	//job.Execute(tgHandler.OnTestAnswer, tgHandler.OnWriteTestOption)
 	once.Do(func() {
 		c := cron.New()
-		c.AddFunc("*/59 * * * *", func() {
-			job := jobs.NewSendWordJob(wordService, userRepo)
-			job.Execute(tgHandler.OnTestAnswer)
-			log.Println("Scheduler started. The task will run every 59 minutes.")
+		c.AddFunc("0 */3 * * *", func() {
+			job.Execute(tgHandler.OnTestAnswer, tgHandler.OnWriteTestOption)
+			log.Println("Scheduler started. The task will run every 3 hours.")
 		})
 		c.Start()
 		log.Println("Scheduler started. The task will run every 59 minutes.")

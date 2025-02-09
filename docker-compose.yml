@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15
-    container_name: db
+    container_name: go-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${PG_PASSWORD}
