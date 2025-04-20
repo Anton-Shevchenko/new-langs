@@ -18,6 +18,7 @@ func (h *TGHandler) processCustomTranslation(
 	user *model.User,
 ) {
 	sourceWord := user.StateData.Value
+	user.StateData.Scenario = ""
 	user.StateData.Value = ""
 
 	if err := h.userRepository.Update(user); err != nil {
