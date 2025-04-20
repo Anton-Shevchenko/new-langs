@@ -74,6 +74,7 @@ func (h *TGHandler) handleCustomTranslation(
 	}
 
 	user.StateData.Value = string(data)
+	user.StateData.Scenario = model.CustomTranslationScenario
 	err = h.userRepository.Update(user)
 	if err != nil {
 		h.handleError(ctx, b, mes.Message.Chat.ID, "Failed to update user data")
