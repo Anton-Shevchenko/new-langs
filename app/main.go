@@ -19,7 +19,6 @@ import (
 	"langs/internal/service"
 	"langs/internal/tg_bot/tg_keyboard"
 	"langs/internal/tg_bot/tg_msg"
-	"langs/pkg/TGbot"
 	"langs/pkg/book_reader"
 	"langs/pkg/db"
 	"log"
@@ -132,24 +131,24 @@ func initDependencies(ctx context.Context) *bot.Bot {
 
 func initUser(next bot.HandlerFunc) bot.HandlerFunc {
 	return func(ctx context.Context, b *bot.Bot, update *models.Update) {
-		if update.Message != nil || update.CallbackQuery.Message.Message.Chat.ID != 0 {
-			chatID := TGbot.GetChatIDFromUpdate(update)
-			user = userService.InitUser(chatID)
+		var chatID int64
 
-			if user == nil {
-				user = &model.User{
-					ChatId: chatID,
-				}
-
-				fmt.Println("USER", user)
-				userService.Upsert(user)
-
-			}
+		if update.Message != nil {
+			chatID = update.Message.Chat.ID
+		} else if update.CallbackQuery != nil && update.CallbackQuery.Message.Message != nil {
+			chatID = update.CallbackQuery.Message.Message.Chat.ID
+		} else {
+			next(ctx, b, update)
+			return
 		}
 
-		ctx = context.Background()
-		ctx = context.WithValue(ctx, "user", user)
+		user = userService.InitUser(chatID)
+		if user == nil {
+			user = &model.User{ChatId: chatID}
+			userService.Upsert(user)
+		}
 
+		ctx = context.WithValue(ctx, "user", user)
 		next(ctx, b, update)
 	}
 }
