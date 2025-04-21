@@ -31,14 +31,6 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 		if firstUnit, ok := safeGetArray(units, 0); ok && len(firstUnit) > 2 {
 			if typeIndicator, ok := safeGetString(firstUnit, 0); ok {
 				switch typeIndicator {
-				case "":
-					if forms, ok := safeGetArray(firstUnit, 1); ok && len(forms) > 0 {
-						if infPair, ok := safeGetArray(forms, 0); ok && len(infPair) > 0 {
-							if inf, ok := safeGetString(infPair, 0); ok {
-								tr.Infinitive = inf
-							}
-						}
-					}
 				case "verb":
 					if inf, ok := safeGetString(firstUnit, 2); ok {
 						tr.Infinitive = inf
