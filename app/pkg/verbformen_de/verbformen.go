@@ -30,7 +30,7 @@ func Lookup(raw string) (*LookupResult, error) {
 		res.IsVerb = false
 	} else {
 		res.IsVerb = true
-		conj, err := extractConjugation(doc, word)
+		conj, err := extractConjugation(doc)
 		if err != nil {
 			return nil, fmt.Errorf("conjugation error: %w", err)
 		}
@@ -73,28 +73,11 @@ func extractArticle(html string) (string, bool) {
 	return "", false
 }
 
-func extractConjugation(doc *goquery.Document, word string) ([]string, error) {
-	heading := fmt.Sprintf("%s conjugation", word)
+func extractConjugation(doc *goquery.Document) ([]string, error) {
 	var lines []string
-	found := false
-	doc.Find("h3").EachWithBreak(func(i int, s *goquery.Selection) bool {
-		if strings.TrimSpace(strings.ToLower(s.Text())) != heading {
-			return true
-		}
-		found = true
-		for sib := s.Next(); sib.Length() > 0; sib = sib.Next() {
-			if goquery.NodeName(sib) == "h3" {
-				break
-			}
-			text := strings.TrimSpace(sib.Text())
-			if text != "" {
-				lines = append(lines, text)
-			}
-		}
-		return false
+	doc.Find("#stammformen b").Each(func(i int, s *goquery.Selection) {
+		lines = append(lines, s.Text())
 	})
-	if !found {
-		return nil, fmt.Errorf("conjugation for %q not found", word)
-	}
+
 	return lines, nil
 }

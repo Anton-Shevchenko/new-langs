@@ -12,6 +12,7 @@ type TranslateResult struct {
 	Article         string
 	Translations    []string
 	Examples        []string
+	Conjugation     []string
 }
 
 type TranslationStrategy interface {

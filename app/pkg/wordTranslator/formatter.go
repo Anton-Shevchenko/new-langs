@@ -51,12 +51,26 @@ func (tr TranslateResult) ToString(msgLang string) string {
 		}
 	}
 
+	if len(tr.Conjugation) > 0 {
+		sb.WriteString("<strong>📖 Forms:</strong> ")
+		sb.WriteString(strings.Join(tr.Conjugation, " * "))
+		sb.WriteString("\n")
+	}
+
 	if tr.Article != "" {
 		sb.WriteString(fmt.Sprintf(
 			"<strong>🔍 Article: %s</strong>\n",
 			tr.Article,
 		))
 	}
+
+	if tr.Infinitive != "" {
+		sb.WriteString(fmt.Sprintf(
+			"<strong>🔍 Infinitive: %s</strong>\n",
+			tr.Infinitive,
+		))
+	}
+
 	WriteTranslationString(&sb, tr.TranslationLang)
 	return sb.String()
 }
@@ -88,12 +102,9 @@ func ParseSourceWordsFromTranslateMsg(input string) string {
 func ParseArticleFromTranslateMsg(input string) string {
 	re := regexp.MustCompile(`🔍 Article:\s*([[:alpha:]]+)`)
 	m := re.FindStringSubmatch(input)
-	fmt.Println("RRRRRRRRRR", m)
 	if len(m) == 2 {
-		fmt.Println("RRRRRRRRRR2", m)
 		return m[1]
 	} else {
-		fmt.Println("RRRRRRR")
 		return ""
 	}
 }
