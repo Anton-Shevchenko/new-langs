@@ -29,7 +29,7 @@ func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) 
 		SourceLang:      sourceLang,
 		TranslationLang: targetLang,
 	}
-	fmt.Println("TTTTTTTTTT", tr)
+
 	getStrategy(sourceLang).PostProcess(tr, raw)
 	return tr, nil
 }

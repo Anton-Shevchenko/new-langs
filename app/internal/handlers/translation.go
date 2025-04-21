@@ -8,6 +8,7 @@ import (
 	"langs/pkg/TGbot"
 	"langs/pkg/formatter"
 	"langs/pkg/wordTranslator"
+	"regexp"
 	"strings"
 )
 
@@ -47,7 +48,8 @@ func (h *TGHandler) processTranslation(
 ) {
 	if !translation.IsValid && len(strings.Fields(update.Message.Text)) == 1 {
 		if !h.handleSpellingMistakes(ctx, b, update) {
-			TGbot.SendMessage(ctx, b, update.Message.Chat.ID, translation.SimpleString(), nil)
+			ts := translation.SimpleString()
+			TGbot.SendMessage(ctx, b, update.Message.Chat.ID, ts, nil)
 		}
 	} else {
 		h.tgMessage.SendWordView(
@@ -98,6 +100,12 @@ func (h *TGHandler) OnSelectTranslateOption(
 	}
 
 	sourceWord := wordTranslator.ParseSourceWordsFromTranslateMsg(mes.Message.Text)
+
+	if !hasGermanArticle(sourceWord) {
+		article := wordTranslator.ParseArticleFromTranslateMsg(mes.Message.Text)
+		sourceWord = article + " " + sourceWord
+	}
+
 	msgText := formatter.FormatWordMessage(sourceWord, string(translation))
 	chatId := mes.Message.Chat.ID
 
@@ -114,4 +122,20 @@ func (h *TGHandler) OnSelectTranslateOption(
 	}
 
 	h.tgMessage.SendOrEditMessage(ctx, chatId, 0, msgText, nil)
+
+}
+
+var articleRe = regexp.MustCompile(`(?i)^(der|die|das)\s+(.+)$`)
+
+func splitGermanArticle(s string) (article, rest string, ok bool) {
+	s = strings.TrimSpace(s)
+	if m := articleRe.FindStringSubmatch(s); len(m) == 3 {
+		return strings.ToLower(m[1]), m[2], true
+	}
+	return "", s, false
+}
+
+func hasGermanArticle(s string) bool {
+	_, _, ok := splitGermanArticle(s)
+	return ok
 }

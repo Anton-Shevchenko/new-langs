@@ -32,20 +32,14 @@ func (tr TranslateResult) SimpleString() string {
 
 func (tr TranslateResult) ToString(msgLang string) string {
 	if msgLang == tr.SourceLang {
-		fmt.Println("KKKKKKKKKK 1")
 		return tr.ToNativeWordString()
 	}
 	if !tr.IsSimpleWord {
-		fmt.Println("KKKKKKKKKK 2")
 		return tr.ToSentenceString()
 	}
 	if !tr.IsValid {
-		fmt.Println("KKKKKKKKKK 3")
-
 		return tr.SimpleString()
 	}
-
-	fmt.Println("KKKKKKKKKK 4")
 
 	var sb strings.Builder
 	WriteSourceWordString(&sb, tr.SourceWord, tr.SourceLang)
@@ -55,6 +49,13 @@ func (tr TranslateResult) ToString(msgLang string) string {
 		for _, example := range tr.Examples {
 			sb.WriteString(fmt.Sprintf("  - %s\n", example))
 		}
+	}
+
+	if tr.Article != "" {
+		sb.WriteString(fmt.Sprintf(
+			"<strong>🔍 Article: %s</strong>\n",
+			tr.Article,
+		))
 	}
 	WriteTranslationString(&sb, tr.TranslationLang)
 	return sb.String()
@@ -74,6 +75,7 @@ func WriteTranslationString(sb *strings.Builder, targetLang string) {
 	))
 }
 
+// TODO move
 func ParseSourceWordsFromTranslateMsg(input string) string {
 	re := regexp.MustCompile(`Source (Sentence|Word):\s+(.*)(\n|$)`)
 	match := re.FindStringSubmatch(input)
@@ -81,4 +83,17 @@ func ParseSourceWordsFromTranslateMsg(input string) string {
 		return match[2]
 	}
 	return ""
+}
+
+func ParseArticleFromTranslateMsg(input string) string {
+	re := regexp.MustCompile(`🔍 Article:\s*([[:alpha:]]+)`)
+	m := re.FindStringSubmatch(input)
+	fmt.Println("RRRRRRRRRR", m)
+	if len(m) == 2 {
+		fmt.Println("RRRRRRRRRR2", m)
+		return m[1]
+	} else {
+		fmt.Println("RRRRRRR")
+		return ""
+	}
 }

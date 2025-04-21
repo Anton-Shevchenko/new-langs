@@ -18,6 +18,15 @@ func safeGetString(data []interface{}, idx int) (string, bool) {
 	return "", false
 }
 
+func safeGetFloat(data []interface{}, idx int) (float64, bool) {
+	if idx >= 0 && idx < len(data) {
+		if f, ok := data[idx].(float64); ok {
+			return f, true
+		}
+	}
+	return 0, false
+}
+
 func SliceUnique(slice []string) []string {
 	unique := make(map[string]struct{}, len(slice))
 	out := make([]string, 0, len(slice))

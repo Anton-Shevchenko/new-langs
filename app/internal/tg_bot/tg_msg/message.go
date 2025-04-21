@@ -10,6 +10,7 @@ import (
 	"langs/internal/model"
 	"langs/internal/tg_bot/tg_keyboard"
 	"langs/pkg/formatter"
+	"langs/pkg/verbformen_de"
 	"langs/pkg/wordTranslator"
 )
 
@@ -106,8 +107,16 @@ func (tgm *TGMessageService) SendWordView(
 	}
 
 	var msgText string
+
 	if user.NativeLang == sourceWordLang {
 		msgText = wordMsg.ToNativeWordString()
+		if wordMsg.TranslationLang == "de" {
+			lookup, err := verbformen_de.Lookup(wordMsg.Translations[0])
+			if err == nil {
+				wordWithArticle := lookup.Article + " " + lookup.Word
+				wordMsg.Translations = append([]string{wordWithArticle}, wordMsg.Translations...)
+			}
+		}
 	} else {
 		msgText = wordMsg.ToString(user.NativeLang)
 	}

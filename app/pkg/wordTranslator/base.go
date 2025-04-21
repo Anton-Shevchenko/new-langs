@@ -12,7 +12,6 @@ func init() {
 
 func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 	tr.IsSimpleWord = len(strings.Fields(tr.SourceWord)) == 1
-	tr.IsValid = true
 
 	if first, ok := safeGetArray(raw, 0); ok {
 		if block, ok := safeGetArray(first, 1); ok {
@@ -28,7 +27,7 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 		}
 	}
 
-	if transUnits, ok := safeGetArray(raw, 5); ok {
+	if transUnits, ok := safeGetArray(raw, 5); ok && len(transUnits) > 0 {
 		if firstUnit, ok := safeGetArray(transUnits, 0); ok && len(firstUnit) > 0 {
 			if inf, ok := safeGetString(firstUnit, 0); ok {
 				tr.Infinitive = inf
@@ -52,28 +51,31 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 	tr.Examples = nil
 
 	if posRaw, ok := safeGetArray(raw, 12); ok {
+
+	GatherPOS:
 		for _, p := range posRaw {
 			entry, ok := p.([]interface{})
 			if !ok || len(entry) < 2 {
 				continue
 			}
 			posStr, _ := entry[0].(string)
-			if posStr == "noun" {
+			tr.PartOfSpeech = posStr
+			switch posStr {
+			case "noun":
 				if senses, ok := safeGetArray(entry, 1); ok {
 					for _, sRaw := range senses {
-						if sense, ok := sRaw.([]interface{}); ok && len(sense) > 2 {
+						sense, ok := sRaw.([]interface{})
+						if ok && len(sense) > 2 {
 							if exText, ok := sense[2].(string); ok {
 								tr.Examples = append(tr.Examples, exText)
 							}
 						}
 						if len(tr.Examples) >= 5 {
-							break
+							break GatherPOS
 						}
 					}
 				}
-				break
-			}
-			if posStr == "verb" || posStr == "adverb" {
+			case "verb", "adverb":
 				if exOuter, ok := safeGetArray(raw, 13); ok {
 					for _, group := range exOuter {
 						if list, ok := group.([]interface{}); ok {
@@ -84,22 +86,43 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 									}
 								}
 								if len(tr.Examples) >= 5 {
-									break
+									break GatherPOS
 								}
 							}
 						}
-						if len(tr.Examples) >= 5 {
-							break
+					}
+				}
+			default:
+				if exOuter, ok := safeGetArray(raw, 13); ok {
+					for _, group := range exOuter {
+						if list, ok := group.([]interface{}); ok {
+							for _, item := range list {
+								if ent, ok := item.([]interface{}); ok && len(ent) > 0 {
+									if txt, ok := ent[0].(string); ok {
+										tr.Examples = append(tr.Examples, txt)
+									}
+								}
+								if len(tr.Examples) >= 5 {
+									break GatherPOS
+								}
+							}
 						}
 					}
 				}
 				break
 			}
 		}
-	}
 
-	tr.Translations = SliceUnique(tr.Translations)
-	tr.Examples = SliceUnique(tr.Examples)
+		tr.Translations = SliceUnique(tr.Translations)
+		tr.Examples = SliceUnique(tr.Examples)
+
+		conf, ok := safeGetFloat(raw, 6)
+		isCorrect := ok && conf > 0.75
+
+		if len(tr.Translations) > 0 || (isCorrect) {
+			tr.IsValid = true
+		}
+	}
 }
 
 func (s *defaultStrategy) PostProcess(tr *TranslateResult, raw []interface{}) {

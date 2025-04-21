@@ -8,6 +8,8 @@ type TranslateResult struct {
 	SourceLang      string
 	TranslationLang string
 	Infinitive      string
+	PartOfSpeech    string
+	Article         string
 	Translations    []string
 	Examples        []string
 }
