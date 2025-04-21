@@ -18,7 +18,7 @@ func (s *germanStrategy) PostProcess(tr *TranslateResult, raw []interface{}) {
 		return
 	}
 
-	if lookup.Article == "" {
+	if lookup.Article != "" {
 		tr.Article = lookup.Article
 	}
 

@@ -26,6 +26,7 @@ func Lookup(raw string) (*LookupResult, error) {
 	}
 	res := &LookupResult{Word: raw}
 	if art, ok := extractArticle(html); ok {
+		fmt.Println("AAAAAAA", art)
 		res.Article = art
 		res.IsVerb = false
 	} else {

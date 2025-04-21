@@ -43,7 +43,7 @@ func (tr TranslateResult) ToString(msgLang string) string {
 
 	var sb strings.Builder
 	WriteSourceWordString(&sb, tr.SourceWord, tr.SourceLang)
-	sb.WriteString(fmt.Sprintf("<strong>🔊 Transcription:</strong> %s\n", tr.Transcription))
+	//sb.WriteString(fmt.Sprintf("<strong>🔊 Transcription:</strong> %s\n", tr.Transcription))
 	if len(tr.Examples) > 0 {
 		sb.WriteString("<strong>📖 Examples:</strong>\n")
 		for _, example := range tr.Examples {
@@ -64,7 +64,7 @@ func (tr TranslateResult) ToString(msgLang string) string {
 		))
 	}
 
-	if tr.Infinitive != "" {
+	if tr.PartOfSpeech == "verb" && tr.Infinitive != "" {
 		sb.WriteString(fmt.Sprintf(
 			"<strong>🔍 Infinitive: %s</strong>\n",
 			tr.Infinitive,
