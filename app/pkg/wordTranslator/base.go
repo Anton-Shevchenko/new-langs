@@ -1,0 +1,107 @@
+package wordTranslator
+
+import (
+	"strings"
+)
+
+type defaultStrategy struct{}
+
+func init() {
+	RegisterStrategy("default", &defaultStrategy{})
+}
+
+func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
+	tr.IsSimpleWord = len(strings.Fields(tr.SourceWord)) == 1
+	tr.IsValid = true
+
+	if first, ok := safeGetArray(raw, 0); ok {
+		if block, ok := safeGetArray(first, 1); ok {
+			if len(block) >= 4 {
+				if t, ok := safeGetString(block, 3); ok {
+					tr.Transcription = t
+				}
+			} else if len(block) >= 3 {
+				if t, ok := safeGetString(block, 2); ok {
+					tr.Transcription = t
+				}
+			}
+		}
+	}
+
+	if transUnits, ok := safeGetArray(raw, 5); ok {
+		if firstUnit, ok := safeGetArray(transUnits, 0); ok && len(firstUnit) > 0 {
+			if inf, ok := safeGetString(firstUnit, 0); ok {
+				tr.Infinitive = inf
+			}
+		}
+		for _, u := range transUnits {
+			if unit, ok := u.([]interface{}); ok && len(unit) > 2 {
+				if forms, ok := unit[2].([]interface{}); ok {
+					for _, f := range forms {
+						if fa, ok := f.([]interface{}); ok && len(fa) > 0 {
+							if w, ok := fa[0].(string); ok {
+								tr.Translations = append(tr.Translations, w)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	tr.Examples = nil
+
+	if posRaw, ok := safeGetArray(raw, 12); ok {
+		for _, p := range posRaw {
+			entry, ok := p.([]interface{})
+			if !ok || len(entry) < 2 {
+				continue
+			}
+			posStr, _ := entry[0].(string)
+			if posStr == "noun" {
+				if senses, ok := safeGetArray(entry, 1); ok {
+					for _, sRaw := range senses {
+						if sense, ok := sRaw.([]interface{}); ok && len(sense) > 2 {
+							if exText, ok := sense[2].(string); ok {
+								tr.Examples = append(tr.Examples, exText)
+							}
+						}
+						if len(tr.Examples) >= 5 {
+							break
+						}
+					}
+				}
+				break
+			}
+			if posStr == "verb" || posStr == "adverb" {
+				if exOuter, ok := safeGetArray(raw, 13); ok {
+					for _, group := range exOuter {
+						if list, ok := group.([]interface{}); ok {
+							for _, item := range list {
+								if ent, ok := item.([]interface{}); ok && len(ent) > 0 {
+									if txt, ok := ent[0].(string); ok {
+										tr.Examples = append(tr.Examples, txt)
+									}
+								}
+								if len(tr.Examples) >= 5 {
+									break
+								}
+							}
+						}
+						if len(tr.Examples) >= 5 {
+							break
+						}
+					}
+				}
+				break
+			}
+		}
+	}
+
+	tr.Translations = SliceUnique(tr.Translations)
+	tr.Examples = SliceUnique(tr.Examples)
+}
+
+func (s *defaultStrategy) PostProcess(tr *TranslateResult, raw []interface{}) {
+	s.process(tr, raw)
+}
