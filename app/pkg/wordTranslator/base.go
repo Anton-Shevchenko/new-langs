@@ -35,7 +35,6 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 					if inf, ok := safeGetString(firstUnit, 2); ok {
 						tr.Infinitive = inf
 					}
-				default:
 				}
 			}
 		}
@@ -50,6 +49,7 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 			}
 		}
 	}
+
 	if transUnits, ok := safeGetArray(raw, 5); ok && len(transUnits) > 0 {
 		for _, u := range transUnits {
 			if unit, ok := u.([]interface{}); ok && len(unit) > 2 {
@@ -67,10 +67,11 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 	}
 
 	tr.Examples = nil
+	posPresent := false
 
-	if posRaw, ok := safeGetArray(raw, 12); ok {
-
-	GatherPOS:
+	if posRaw, ok := safeGetArray(raw, 12); ok && len(posRaw) > 0 {
+		posPresent = true
+	Outer:
 		for _, p := range posRaw {
 			entry, ok := p.([]interface{})
 			if !ok || len(entry) < 2 {
@@ -89,7 +90,7 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 							}
 						}
 						if len(tr.Examples) >= 5 {
-							break GatherPOS
+							break Outer
 						}
 					}
 				}
@@ -104,7 +105,7 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 									}
 								}
 								if len(tr.Examples) >= 5 {
-									break GatherPOS
+									break Outer
 								}
 							}
 						}
@@ -121,7 +122,7 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 									}
 								}
 								if len(tr.Examples) >= 5 {
-									break GatherPOS
+									break Outer
 								}
 							}
 						}
@@ -130,16 +131,16 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 				break
 			}
 		}
+	}
 
-		tr.Translations = SliceUnique(tr.Translations)
-		tr.Examples = SliceUnique(tr.Examples)
+	tr.Translations = SliceUnique(tr.Translations)
+	tr.Examples = SliceUnique(tr.Examples)
 
-		conf, ok := safeGetFloat(raw, 6)
-		isCorrect := ok && conf > 0.75
+	conf, ok := safeGetFloat(raw, 6)
+	isCorrect := ok && conf > 0.75
 
-		if len(tr.Translations) > 0 || (isCorrect) {
-			tr.IsValid = true
-		}
+	if len(tr.Translations) > 0 && (posPresent || isCorrect) {
+		tr.IsValid = true
 	}
 }
 
