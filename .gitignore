@@ -3,4 +3,5 @@ app/.bin
 app/go.sum
 app/tmp
 .env
+.DD_Store
 docker-compose.override.yml
