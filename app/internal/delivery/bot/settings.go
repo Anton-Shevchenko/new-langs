@@ -27,6 +27,7 @@ func (h *AppRouter) OnSettings(ctx context.Context, b *bot.Bot, update *models.U
 func (h *AppRouter) sendSettingsMenu(ctx context.Context, b *bot.Bot, chatID int64, user *model.User) {
 	text := fmt.Sprintf("⚙️ Settings\n\n"+
 		"🕐 Timezone: %s\n"+
+		"⏱ Test Frequency: %s\n"+
 		"🔇 Quiet Hours: %s\n"+
 		"⏰ Start Time: %s\n"+
 		"⏰ End Time: %s\n"+
@@ -34,6 +35,7 @@ func (h *AppRouter) sendSettingsMenu(ctx context.Context, b *bot.Bot, chatID int
 		"During quiet hours the bot will not send you word tests.\n\n"+
 		"Choose an option:",
 		user.Timezone,
+		formatTestInterval(user.GetTestIntervalHours()),
 		formatEnabled(user.QuietHours.Enabled),
 		user.QuietHours.StartTime,
 		user.QuietHours.EndTime,
@@ -41,11 +43,11 @@ func (h *AppRouter) sendSettingsMenu(ctx context.Context, b *bot.Bot, chatID int
 
 	keyboard := [][]models.InlineKeyboardButton{
 		{{Text: "🕐 Set Timezone", CallbackData: "settings_timezone"}},
+		{{Text: "⏱ Test Frequency", CallbackData: "settings_test_interval"}},
 		{{Text: "🔇 Toggle Quiet Hours", CallbackData: "settings_quiet_hours"}},
 		{{Text: "⏰ Start Time", CallbackData: "settings_start_time"}},
 		{{Text: "⏰ End Time", CallbackData: "settings_end_time"}},
 		{{Text: "📅 Days of Week", CallbackData: "settings_days"}},
-		{{Text: "🔙 Back", CallbackData: "settings_back"}},
 	}
 
 	TGbot.SendMessage(ctx, b, chatID, text, &models.InlineKeyboardMarkup{
@@ -60,6 +62,8 @@ func (h *AppRouter) HandleSettingsCallback(ctx context.Context, b *bot.Bot, mes 
 	switch callbackData {
 	case "settings_timezone":
 		h.handleTimezoneSelection(ctx, b, mes, user)
+	case "settings_test_interval":
+		h.handleTestIntervalSelection(ctx, b, mes, user)
 	case "settings_quiet_hours":
 		h.handleQuietHoursToggle(ctx, b, mes, user)
 	case "settings_start_time":
@@ -69,11 +73,7 @@ func (h *AppRouter) HandleSettingsCallback(ctx context.Context, b *bot.Bot, mes 
 	case "settings_days":
 		h.handleDaysSelection(ctx, b, mes, user)
 	case "settings_back":
-		h.OnBack(ctx, b, &models.Update{
-			CallbackQuery: &models.CallbackQuery{
-				Message: mes,
-			},
-		})
+		h.sendSettingsMenu(ctx, b, mes.Message.Chat.ID, user)
 	}
 }
 
@@ -93,6 +93,35 @@ func (h *AppRouter) handleTimezoneSelection(ctx context.Context, b *bot.Bot, mes
 
 	TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
 		"🕐 Select your timezone or type it (e.g., Europe/Berlin):",
+		&models.InlineKeyboardMarkup{InlineKeyboard: keyboard})
+}
+
+func (h *AppRouter) handleTestIntervalSelection(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, user *model.User) {
+	current := user.GetTestIntervalHours()
+
+	var row []models.InlineKeyboardButton
+	var keyboard [][]models.InlineKeyboardButton
+	for hours := model.MinTestIntervalHours; hours <= model.MaxTestIntervalHours; hours++ {
+		label := fmt.Sprintf("%dh", hours)
+		if hours == current {
+			label = "✅ " + label
+		}
+		row = append(row, models.InlineKeyboardButton{
+			Text:         label,
+			CallbackData: fmt.Sprintf("interval_%d", hours),
+		})
+		if len(row) == 4 {
+			keyboard = append(keyboard, row)
+			row = nil
+		}
+	}
+	if len(row) > 0 {
+		keyboard = append(keyboard, row)
+	}
+	keyboard = append(keyboard, []models.InlineKeyboardButton{{Text: "🔙 Back", CallbackData: "settings_back"}})
+
+	TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
+		"⏱ How often should I send you tests?",
 		&models.InlineKeyboardMarkup{InlineKeyboard: keyboard})
 }
 
@@ -200,6 +229,13 @@ func normalizeTime(input string) (string, bool) {
 		return "", false
 	}
 	return t.Format("15:04"), true
+}
+
+func formatTestInterval(hours int) string {
+	if hours == 1 {
+		return "every hour"
+	}
+	return fmt.Sprintf("every %d hours", hours)
 }
 
 func formatEnabled(enabled bool) string {

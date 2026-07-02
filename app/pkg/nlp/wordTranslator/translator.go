@@ -64,6 +64,76 @@ func buildTranslateURL(encodedSource, sourceLang, targetLang string) string {
 	)
 }
 
+// detectPartOfSpeech resolves the part of speech of a word by querying Google's
+// bilingual dictionary (dt=bd), which returns POS labels ("noun", "verb",
+// "adjective", ...). It is used when the main translation response does not
+// carry a part of speech (e.g. uk->de). Returns "" if unknown.
+func detectPartOfSpeech(word, lang string) string {
+	if word == "" {
+		return ""
+	}
+
+	// The dictionary block is populated for translations into English; pick a
+	// different target when the source is already English.
+	target := "en"
+	if lang == "en" {
+		target = "de"
+	}
+
+	encoded, err := encodeURI(word)
+	if err != nil {
+		return ""
+	}
+
+	url := fmt.Sprintf(
+		"https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&dt=bd&q=%s",
+		lang, target, encoded,
+	)
+	body, err := fetchTranslationData(url)
+	if err != nil {
+		return ""
+	}
+	raw, err := parseResponse(body)
+	if err != nil {
+		return ""
+	}
+	return parsePartOfSpeech(raw)
+}
+
+var knownPartsOfSpeech = map[string]bool{
+	"noun": true, "verb": true, "adjective": true, "adverb": true,
+	"pronoun": true, "preposition": true, "conjunction": true,
+	"interjection": true, "numeral": true, "article": true,
+	"determiner": true, "abbreviation": true, "particle": true,
+	"exclamation": true, "prefix": true, "suffix": true,
+}
+
+// parsePartOfSpeech extracts the first POS label from a Google dictionary
+// response. Dictionary groups look like ["noun", ["term", ...], ...].
+func parsePartOfSpeech(raw []interface{}) string {
+	for _, el := range raw {
+		group, ok := el.([]interface{})
+		if !ok || len(group) == 0 {
+			continue
+		}
+		entry, ok := group[0].([]interface{})
+		if !ok || len(entry) < 2 {
+			continue
+		}
+		label, ok := entry[0].(string)
+		if !ok {
+			continue
+		}
+		if _, ok := entry[1].([]interface{}); !ok {
+			continue
+		}
+		if knownPartsOfSpeech[label] {
+			return label
+		}
+	}
+	return ""
+}
+
 func fetchTranslationData(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {

@@ -26,21 +26,22 @@ func (s *germanStrategy) PostProcess(tr *TranslateResult, raw []interface{}) {
 //   - German target (xx -> de): enrich the first German translation.
 //
 // Only nouns have a gender, so the article is looked up only when the word is a
-// noun. Verbs are detected via part of speech; when the case of the word is
-// reliable (the German side comes from the translator, not raw user input) an
-// uppercase first letter is also required, since German nouns are always
-// capitalized. This prevents matching a noun homograph of a verb such as the
-// noun "Essen" for the verb "essen".
+// noun. Relying on capitalization alone is unreliable (Google may capitalize
+// adjectives, e.g. "гарний" -> "Gut", which collides with the noun "das Gut"),
+// so the part of speech drives the decision.
 func enrichGerman(tr *TranslateResult) {
 	word := germanWord(tr)
 	if word == "" {
 		return
 	}
 
-	articleWord, tryArticle := nounLookupWord(tr, word)
+	isNoun := germanConceptPOS(tr) == "noun"
 
-	if tryArticle {
-		if art, err := wiktionary_de.Article(articleWord); err == nil && art != "" {
+	if isNoun {
+		// German nouns are capitalized; user input is lower-cased by the
+		// handlers, and Google is inconsistent, so normalize for the
+		// case-sensitive Wiktionary lookup.
+		if art, err := wiktionary_de.Article(capitalizeFirst(word)); err == nil && art != "" {
 			tr.Article = art
 		}
 	}
@@ -50,7 +51,7 @@ func enrichGerman(tr *TranslateResult) {
 		return
 	}
 
-	if tryArticle && tr.Article == "" && lookup.Article != "" {
+	if isNoun && tr.Article == "" && lookup.Article != "" {
 		tr.Article = lookup.Article
 	}
 
@@ -59,34 +60,14 @@ func enrichGerman(tr *TranslateResult) {
 	}
 }
 
-// nounLookupWord returns the word to use for the article lookup and whether an
-// article should be looked up at all.
-func nounLookupWord(tr *TranslateResult, word string) (string, bool) {
-	if tr.PartOfSpeech == "verb" {
-		return "", false
+// germanConceptPOS returns the part of speech of the concept being translated.
+// The main translation response carries it for some directions (e.g. de->xx);
+// otherwise it is resolved from the source word via an auxiliary lookup.
+func germanConceptPOS(tr *TranslateResult) string {
+	if tr.PartOfSpeech != "" {
+		return tr.PartOfSpeech
 	}
-
-	// German source: user input is lower-cased by the handlers, so the case is
-	// not reliable. Capitalize for the (case-sensitive) noun lookup and rely on
-	// the part-of-speech check above to filter out verbs.
-	if tr.SourceLang == "de" {
-		return capitalizeFirst(word), true
-	}
-
-	// German target: the word comes from the translator, which preserves case.
-	// A lowercase word is therefore not a noun and must not get an article.
-	if tr.TranslationLang == "de" && startsUpper(word) {
-		return word, true
-	}
-
-	return "", false
-}
-
-func startsUpper(word string) bool {
-	for _, r := range word {
-		return unicode.IsUpper(r)
-	}
-	return false
+	return detectPartOfSpeech(tr.SourceWord, tr.SourceLang)
 }
 
 func capitalizeFirst(word string) string {

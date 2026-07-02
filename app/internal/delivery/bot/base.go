@@ -143,6 +143,7 @@ func (h *AppRouter) handleCallback(ctx context.Context, b *bot.Bot, update *mode
 
 	if strings.HasPrefix(callbackData, "settings_") ||
 		strings.HasPrefix(callbackData, "timezone_") ||
+		strings.HasPrefix(callbackData, "interval_") ||
 		strings.HasPrefix(callbackData, "day_") ||
 		callbackData == "days_all" ||
 		callbackData == "days_weekdays" ||
