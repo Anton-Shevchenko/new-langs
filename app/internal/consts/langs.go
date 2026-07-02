@@ -5,6 +5,8 @@ var LangFlags = map[string]string{
 	"en": "🇬🇧",
 	"de": "🇩🇪",
 	"es": "🇪🇸",
+	"nl": "🇳🇱",
+	"ru": "🇺🇦",
 }
 
 var LangFullName = map[string]string{
@@ -12,4 +14,6 @@ var LangFullName = map[string]string{
 	"en": "English",
 	"de": "German",
 	"es": "Spanish",
+	"nl": "Dutch",
+	"ru": "Russian",
 }

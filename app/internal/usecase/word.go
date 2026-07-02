@@ -72,7 +72,9 @@ func (s *WordService) AddWord(source, translation string, user *model.User) (*mo
 }
 
 func (s *WordService) SendTest(user *model.User, handle, handleWrite inline.OnSelect) {
-	word, err := s.wordRepository.GetRandomWordByChatIdAndRateLimit(user.ChatId, user.TargetRate)
+	word, err := s.wordRepository.GetRandomWordByChatIdAndRateLimit(
+		user.ChatId, user.TargetRate, user.NativeLang, user.TargetLang,
+	)
 
 	if err != nil {
 		return
@@ -115,6 +117,8 @@ func (s *WordService) SendTest(user *model.User, handle, handleWrite inline.OnSe
 		randomWord.Translation,
 		randomWord.TranslationLang,
 		3,
+		user.NativeLang,
+		user.TargetLang,
 	)
 	translations = append(translations, randomWord.Translation)
 

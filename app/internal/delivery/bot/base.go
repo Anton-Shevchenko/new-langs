@@ -54,6 +54,7 @@ type AppRouterInterface interface {
 	processStartTimeInput(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User)
 	processEndTimeInput(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User)
 	HandleSettingsCallbacks(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, data []byte)
+	HandleLangChange(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, data []byte)
 	handleCallback(ctx context.Context, b *bot.Bot, update *models.Update)
 	OnMainMenu(ctx context.Context, b *bot.Bot, update *models.Update)
 	OnSecondaryMenu(ctx context.Context, b *bot.Bot, update *models.Update)
@@ -147,6 +148,8 @@ func (h *AppRouter) handleCallback(ctx context.Context, b *bot.Bot, update *mode
 		strings.HasPrefix(callbackData, "timezone_") ||
 		strings.HasPrefix(callbackData, "interval_") ||
 		strings.HasPrefix(callbackData, "day_") ||
+		strings.HasPrefix(callbackData, setNativeLangPrefix) ||
+		strings.HasPrefix(callbackData, setTargetLangPrefix) ||
 		callbackData == "days_all" ||
 		callbackData == "days_weekdays" ||
 		callbackData == "days_weekend" {

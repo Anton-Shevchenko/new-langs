@@ -33,7 +33,11 @@ func (r *TGKeyboard) GetLangsKeyboard(b *bot.Bot, onSelect inline.OnSelect, pref
 		Row().
 		Button("Deutsch", []byte("de"), onSelect).
 		Row().
-		Button("Espana", []byte("es"), onSelect)
+		Button("Espana", []byte("es"), onSelect).
+		Row().
+		Button("Nederlands", []byte("nl"), onSelect).
+		Row().
+		Button("Русский", []byte("ru"), onSelect)
 }
 
 func (r *TGKeyboard) GetTranslateOptionsKeyboard(

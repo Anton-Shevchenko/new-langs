@@ -126,6 +126,12 @@ func (h *AppRouter) HandleSettingsCallbacks(
 		return
 	}
 
+	if strings.HasPrefix(callbackData, setNativeLangPrefix) ||
+		strings.HasPrefix(callbackData, setTargetLangPrefix) {
+		h.HandleLangChange(ctx, b, mes, data)
+		return
+	}
+
 	if strings.HasPrefix(callbackData, "timezone_") {
 		timezone := strings.TrimPrefix(callbackData, "timezone_")
 		user := h.getUserFromContextMsg(ctx, b, mes)

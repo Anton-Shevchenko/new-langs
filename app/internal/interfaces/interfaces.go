@@ -37,8 +37,8 @@ type WordRepository interface {
 	AllByChatIdAndLangPair(chatId int64, lang1, lang2 string) ([]*model.Word, error)
 	GetLangPairsByChatId(chatId int64) ([]model.LangPair, error)
 	SearchByChatId(chatId int64, query string, limit int) ([]*model.Word, error)
-	GetRandomWordByChatIdAndRateLimit(chatId int64, rate uint16) (*model.Word, error)
-	GetRandomTranslationsByChatId(chatId int64, exception, lang string, limit int) ([]string, error)
+	GetRandomWordByChatIdAndRateLimit(chatId int64, rate uint16, nativeLang, targetLang string) (*model.Word, error)
+	GetRandomTranslationsByChatId(chatId int64, exception, lang string, limit int, nativeLang, targetLang string) ([]string, error)
 	CheckSimilarWord(word *model.Word) (*model.Word, error)
 	Delete(id int64) error
 	GetCountByChatId(chatId int64) int64
