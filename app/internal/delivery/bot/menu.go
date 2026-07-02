@@ -47,6 +47,7 @@ func (h *AppRouter) OnSecondaryMenu(ctx context.Context, b *bot.Bot, update *mod
 		h.OnBook,
 		h.OnSettings,
 		h.OnWordSearch,
+		h.OnExport,
 	)
 
 	TGbot.SendMessage(ctx, b, chatID, "More Options - Choose an option:", keyboard)

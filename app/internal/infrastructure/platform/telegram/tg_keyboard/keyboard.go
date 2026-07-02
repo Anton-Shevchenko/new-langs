@@ -124,12 +124,15 @@ func (r *TGKeyboard) InitSecondaryMenuKeyboard(
 	onBook bot.HandlerFunc,
 	onSettings bot.HandlerFunc,
 	onWordSearch bot.HandlerFunc,
+	onExport bot.HandlerFunc,
 ) *reply.ReplyKeyboard {
 	return reply.New(reply.IsSelective()).
 		Button("🔍 Search", b, bot.MatchTypeExact, onWordSearch).
 		Button("📖 Reader", b, bot.MatchTypeExact, onBook).
 		Row().
 		Button("⚙️ Settings", b, bot.MatchTypeExact, onSettings).
+		Button("⬇️ Export CSV", b, bot.MatchTypeExact, onExport).
+		Row().
 		Button("Main Menu", b, bot.MatchTypeExact, onMainMenu)
 }
 

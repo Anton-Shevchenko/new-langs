@@ -57,6 +57,8 @@ type AppRouterInterface interface {
 	handleCallback(ctx context.Context, b *bot.Bot, update *models.Update)
 	OnMainMenu(ctx context.Context, b *bot.Bot, update *models.Update)
 	OnSecondaryMenu(ctx context.Context, b *bot.Bot, update *models.Update)
+	OnExport(ctx context.Context, b *bot.Bot, update *models.Update)
+	HandleExportCallback(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, data []byte)
 	SetCommandSet(set interfaces.CommandSetInterface)
 }
 
@@ -164,6 +166,11 @@ func (h *AppRouter) handleCallback(ctx context.Context, b *bot.Bot, update *mode
 
 	if strings.HasPrefix(callbackData, "book_") {
 		h.HandleBook(ctx, b, mes, []byte(update.CallbackQuery.Data))
+		return
+	}
+
+	if strings.HasPrefix(callbackData, exportCallbackPrefix) {
+		h.HandleExportCallback(ctx, b, mes, []byte(update.CallbackQuery.Data))
 		return
 	}
 

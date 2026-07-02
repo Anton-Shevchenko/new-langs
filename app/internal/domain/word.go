@@ -23,3 +23,16 @@ type WordOption struct {
 type TranslationPair struct {
 	Source []string `json:"source"`
 }
+
+// LangPair represents a distinct, direction-independent pair of languages the
+// user has saved words for (e.g. de/uk), together with the number of words.
+type LangPair struct {
+	Lang1 string
+	Lang2 string
+	Count int
+}
+
+// Key returns a stable identifier for the pair, e.g. "de_uk".
+func (p LangPair) Key() string {
+	return p.Lang1 + "_" + p.Lang2
+}
