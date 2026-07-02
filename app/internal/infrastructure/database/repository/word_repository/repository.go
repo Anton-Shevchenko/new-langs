@@ -147,10 +147,14 @@ func (r *WordRepository) Delete(id int64) error {
 	return r.db.Delete(&model.Word{}, id).Error
 }
 
-func (r *WordRepository) GetRandomWordByChatIdAndRateLimit(chatId int64, rate uint16) (*model.Word, error) {
+func (r *WordRepository) GetRandomWordByChatIdAndRateLimit(chatId int64, rate uint16, nativeLang, targetLang string) (*model.Word, error) {
 	var words []model.Word
 	if err := r.db.
-		Where("chat_id = ? AND rate < ?", chatId, rate).
+		Where(
+			"chat_id = ? AND rate < ? AND "+
+				"((value_lang = ? AND translation_lang = ?) OR (value_lang = ? AND translation_lang = ?))",
+			chatId, rate, nativeLang, targetLang, targetLang, nativeLang,
+		).
 		Order("RANDOM()").
 		Limit(5).
 		Find(&words).
@@ -173,6 +177,7 @@ func (r *WordRepository) GetRandomTranslationsByChatId(
 	exception string,
 	lang string,
 	limit int,
+	nativeLang, targetLang string,
 ) ([]string, error) {
 	var words []string
 
@@ -183,8 +188,10 @@ func (r *WordRepository) GetRandomTranslationsByChatId(
 			lang, lang,
 		).
 		Where(
-			"chat_id = ? AND value != ? AND translation != ? AND (value_lang = ? OR translation_lang = ?)",
+			"chat_id = ? AND value != ? AND translation != ? AND (value_lang = ? OR translation_lang = ?) AND "+
+				"((value_lang = ? AND translation_lang = ?) OR (value_lang = ? AND translation_lang = ?))",
 			chatId, exception, exception, lang, lang,
+			nativeLang, targetLang, targetLang, nativeLang,
 		).
 		Order("word, RANDOM()").
 		Limit(limit).

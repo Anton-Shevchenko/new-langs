@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+	"langs/internal/consts"
 	"langs/internal/domain"
 	TGbot "langs/internal/infrastructure/platform/telegram/helper"
 )
@@ -26,6 +27,8 @@ func (h *AppRouter) OnSettings(ctx context.Context, b *bot.Bot, update *models.U
 
 func (h *AppRouter) sendSettingsMenu(ctx context.Context, b *bot.Bot, chatID int64, user *model.User) {
 	text := fmt.Sprintf("⚙️ Settings\n\n"+
+		"🌐 Native Language: %s\n"+
+		"🎯 Learning: %s\n"+
 		"🕐 Timezone: %s\n"+
 		"⏱ Test Frequency: %s\n"+
 		"🔇 Quiet Hours: %s\n"+
@@ -34,6 +37,8 @@ func (h *AppRouter) sendSettingsMenu(ctx context.Context, b *bot.Bot, chatID int
 		"📅 Days: %s\n\n"+
 		"During quiet hours the bot will not send you word tests.\n\n"+
 		"Choose an option:",
+		formatLang(user.NativeLang),
+		formatLang(user.TargetLang),
 		user.Timezone,
 		formatTestInterval(user.GetTestIntervalHours()),
 		formatEnabled(user.QuietHours.Enabled),
@@ -42,6 +47,8 @@ func (h *AppRouter) sendSettingsMenu(ctx context.Context, b *bot.Bot, chatID int
 		formatDaysOfWeek(user.QuietHours.DaysOfWeek))
 
 	keyboard := [][]models.InlineKeyboardButton{
+		{{Text: "🌐 Native Language", CallbackData: "settings_native"}},
+		{{Text: "🎯 Learning Language", CallbackData: "settings_target"}},
 		{{Text: "🕐 Set Timezone", CallbackData: "settings_timezone"}},
 		{{Text: "⏱ Test Frequency", CallbackData: "settings_test_interval"}},
 		{{Text: "🔇 Toggle Quiet Hours", CallbackData: "settings_quiet_hours"}},
@@ -60,6 +67,10 @@ func (h *AppRouter) HandleSettingsCallback(ctx context.Context, b *bot.Bot, mes 
 	callbackData := string(data)
 
 	switch callbackData {
+	case "settings_native":
+		h.handleNativeLangSelection(ctx, b, mes, user)
+	case "settings_target":
+		h.handleTargetLangSelection(ctx, b, mes, user)
 	case "settings_timezone":
 		h.handleTimezoneSelection(ctx, b, mes, user)
 	case "settings_test_interval":
@@ -77,6 +88,96 @@ func (h *AppRouter) HandleSettingsCallback(ctx context.Context, b *bot.Bot, mes 
 	}
 }
 
+const (
+	setNativeLangPrefix = "setnative_"
+	setTargetLangPrefix = "settarget_"
+)
+
+func (h *AppRouter) handleNativeLangSelection(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, user *model.User) {
+	TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
+		"🌐 Select your native language:",
+		langSelectionKeyboard(setNativeLangPrefix, user.NativeLang, user.TargetLang))
+}
+
+func (h *AppRouter) handleTargetLangSelection(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, user *model.User) {
+	TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
+		"🎯 Select the language you want to learn:",
+		langSelectionKeyboard(setTargetLangPrefix, user.TargetLang, user.NativeLang))
+}
+
+// HandleLangChange applies a native/target language change chosen from the
+// settings menu. Native and target must stay different.
+func (h *AppRouter) HandleLangChange(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, data []byte) {
+	user := h.getUserFromContextMsg(ctx, b, mes)
+	callbackData := string(data)
+
+	isNative := strings.HasPrefix(callbackData, setNativeLangPrefix)
+	prefix := setTargetLangPrefix
+	if isNative {
+		prefix = setNativeLangPrefix
+	}
+	lang := strings.TrimPrefix(callbackData, prefix)
+
+	if consts.LangFullName[lang] == "" {
+		return
+	}
+
+	if isNative {
+		if lang == user.TargetLang {
+			TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
+				"⚠️ Native and learning language must be different.",
+				langSelectionKeyboard(setNativeLangPrefix, user.NativeLang, user.TargetLang))
+			return
+		}
+		user.NativeLang = lang
+		user.InterfaceLang = lang
+	} else {
+		if lang == user.NativeLang {
+			TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
+				"⚠️ Native and learning language must be different.",
+				langSelectionKeyboard(setTargetLangPrefix, user.TargetLang, user.NativeLang))
+			return
+		}
+		user.TargetLang = lang
+	}
+
+	if err := h.userRepository.Update(user); err != nil {
+		h.handleError(ctx, b, mes.Message.Chat.ID, "Failed to update language.")
+		return
+	}
+
+	h.sendSettingsMenu(ctx, b, mes.Message.Chat.ID, user)
+}
+
+// langSelectionKeyboard renders the four supported languages, marking the
+// current selection and disabling the one already used for the opposite role.
+func langSelectionKeyboard(prefix, current, other string) *models.InlineKeyboardMarkup {
+	langs := []string{"uk", "en", "de", "es", "nl", "ru"}
+	var rows [][]models.InlineKeyboardButton
+	for _, lang := range langs {
+		label := formatLang(lang)
+		switch lang {
+		case current:
+			label = "✅ " + label
+		case other:
+			label = "🚫 " + label
+		}
+		rows = append(rows, []models.InlineKeyboardButton{{
+			Text:         label,
+			CallbackData: prefix + lang,
+		}})
+	}
+	return &models.InlineKeyboardMarkup{InlineKeyboard: rows}
+}
+
+func formatLang(lang string) string {
+	name := consts.LangFullName[lang]
+	if name == "" {
+		return "—"
+	}
+	return consts.LangFlags[lang] + " " + name
+}
+
 func (h *AppRouter) handleTimezoneSelection(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, user *model.User) {
 	user.StateData.Scenario = TimezoneScenario
 	h.userRepository.Update(user)
@@ -88,7 +189,6 @@ func (h *AppRouter) handleTimezoneSelection(ctx context.Context, b *bot.Bot, mes
 		{{Text: "Europe/Kyiv", CallbackData: "timezone_Europe/Kyiv"}},
 		{{Text: "America/New_York", CallbackData: "timezone_America/New_York"}},
 		{{Text: "Asia/Tokyo", CallbackData: "timezone_Asia/Tokyo"}},
-		{{Text: "🔙 Back", CallbackData: "settings_back"}},
 	}
 
 	TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
@@ -118,7 +218,6 @@ func (h *AppRouter) handleTestIntervalSelection(ctx context.Context, b *bot.Bot,
 	if len(row) > 0 {
 		keyboard = append(keyboard, row)
 	}
-	keyboard = append(keyboard, []models.InlineKeyboardButton{{Text: "🔙 Back", CallbackData: "settings_back"}})
 
 	TGbot.SendMessage(ctx, b, mes.Message.Chat.ID,
 		"⏱ How often should I send you tests?",
@@ -170,7 +269,6 @@ func (h *AppRouter) sendDaysKeyboard(ctx context.Context, chatID int64, msgID in
 		{{Text: "All Days", CallbackData: "days_all"}},
 		{{Text: "Weekdays", CallbackData: "days_weekdays"}},
 		{{Text: "Weekend", CallbackData: "days_weekend"}},
-		{{Text: "🔙 Back", CallbackData: "settings_back"}},
 	}
 
 	h.tgMessage.SendOrEditMessage(ctx, chatID, msgID, "📅 Select days for quiet hours:", &models.InlineKeyboardMarkup{
