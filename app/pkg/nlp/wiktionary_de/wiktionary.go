@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"unicode"
 )
 
 const apiEndpoint = "https://de.wiktionary.org/w/api.php"
@@ -68,50 +67,31 @@ func Article(word string) (string, error) {
 	return res.Article, nil
 }
 
-// Lookup fetches the wikitext for the word and extracts its gender(s).
-// German nouns are capitalized and de.wiktionary.org page titles are
-// case-sensitive, so if the word as given yields nothing we retry with the
-// first letter uppercased (e.g. "regel" -> "Regel").
+// Lookup fetches the wikitext for the exact word (page titles on
+// de.wiktionary.org are case-sensitive) and extracts its gender(s). Only nouns
+// carry a gender, and German nouns are always capitalized, so callers should
+// pass the word with its correct capitalization.
 func Lookup(raw string) (*Result, error) {
 	word := strings.TrimSpace(raw)
 	if word == "" {
 		return nil, fmt.Errorf("empty word")
 	}
 
-	for _, candidate := range titleCandidates(word) {
-		content, err := fetchWikitext(candidate)
-		if err != nil {
-			return nil, err
-		}
-		articles := extractArticles(content)
-		if len(articles) > 0 {
-			return &Result{
-				Word:     raw,
-				Article:  articles[0],
-				Articles: articles,
-			}, nil
-		}
+	content, err := fetchWikitext(word)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, nil
-}
-
-// titleCandidates returns the word forms to try, in priority order.
-func titleCandidates(word string) []string {
-	candidates := []string{word}
-	if capitalized := capitalizeFirst(word); capitalized != word {
-		candidates = append(candidates, capitalized)
+	articles := extractArticles(content)
+	if len(articles) == 0 {
+		return nil, nil
 	}
-	return candidates
-}
 
-func capitalizeFirst(word string) string {
-	runes := []rune(word)
-	if len(runes) == 0 {
-		return word
-	}
-	runes[0] = unicode.ToUpper(runes[0])
-	return string(runes)
+	return &Result{
+		Word:     raw,
+		Article:  articles[0],
+		Articles: articles,
+	}, nil
 }
 
 func fetchWikitext(word string) (string, error) {
