@@ -33,6 +33,9 @@ type BookRepository interface {
 type WordRepository interface {
 	Create(word *model.Word) error
 	AllByChatId(chatId int64, limit, offset int) ([]*model.Word, error)
+	GetAllByChatId(chatId int64) ([]*model.Word, error)
+	AllByChatIdAndLangPair(chatId int64, lang1, lang2 string) ([]*model.Word, error)
+	GetLangPairsByChatId(chatId int64) ([]model.LangPair, error)
 	SearchByChatId(chatId int64, query string, limit int) ([]*model.Word, error)
 	GetRandomWordByChatIdAndRateLimit(chatId int64, rate uint16) (*model.Word, error)
 	GetRandomTranslationsByChatId(chatId int64, exception, lang string, limit int) ([]string, error)

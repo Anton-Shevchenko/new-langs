@@ -50,6 +50,7 @@ func TestKeyboardCreation(t *testing.T) {
 			func(ctx context.Context, b *bot.Bot, update *models.Update) {},
 			func(ctx context.Context, b *bot.Bot, update *models.Update) {},
 			func(ctx context.Context, b *bot.Bot, update *models.Update) {},
+			func(ctx context.Context, b *bot.Bot, update *models.Update) {},
 		)
 
 		assert.NotNil(t, secondaryMenuKeyboard)
