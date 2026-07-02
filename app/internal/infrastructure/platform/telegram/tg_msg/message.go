@@ -71,10 +71,20 @@ func (tgm *TGMessageService) SendWordTest(
 	err := tgm.sendMessage(
 		context.Background(),
 		chatId,
-		consts.LangFlags[word.WordLang]+" - "+word.Word+"\n"+consts.LangFlags[word.TranslationLang]+" - ?",
+		testQuestionText(word),
 		tgm.keyboard.GetAnswerOptionsKeyboard(tgm.B, word.WordID, handle, translations),
 	)
 	tgm.handleError(err)
+}
+
+// testQuestionText renders the quiz prompt: the headword in its language and a
+// placeholder for the translation the user has to recall.
+func testQuestionText(word *model.WordOption) string {
+	return fmt.Sprintf(
+		"%s <b>%s</b>\n%s ❓",
+		consts.LangFlags[word.WordLang], word.Word,
+		consts.LangFlags[word.TranslationLang],
+	)
 }
 
 func (tgm *TGMessageService) SendExam(
@@ -85,7 +95,7 @@ func (tgm *TGMessageService) SendExam(
 	err := tgm.sendMessage(
 		context.Background(),
 		chatId,
-		consts.LangFlags[word.WordLang]+" - "+word.Word+"\n"+consts.LangFlags[word.TranslationLang]+" - ?",
+		testQuestionText(word),
 		tgm.keyboard.GetWriteTestKeyboard(tgm.B, word.WordID, handle),
 	)
 	tgm.handleError(err)

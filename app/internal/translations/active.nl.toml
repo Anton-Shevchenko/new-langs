@@ -14,7 +14,7 @@ other = "Je gaat leren"
 other = "📚 Lijst"
 
 [btn_test_me]
-other = "🧠 Overhoor me"
+other = "📝 Overhoor me"
 
 [btn_more_options]
 other = "Meer opties"
@@ -137,13 +137,13 @@ other = "Vertalingen:"
 other = "📖 Voorbeelden:"
 
 [fmt_forms]
-other = "📖 Vormen:"
+other = "🔤 Vormen:"
 
 [fmt_article]
-other = "🔍 Lidwoord:"
+other = "🏷 Lidwoord:"
 
 [fmt_infinitive]
-other = "🔍 Infinitief:"
+other = "▶️ Infinitief:"
 
 [fmt_unknown_word]
 other = "❓ Onbekend woord."

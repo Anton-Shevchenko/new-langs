@@ -20,13 +20,20 @@ func (tr TranslateResult) ToNativeWordString() string {
 	return tr.ToSentenceString()
 }
 
+// cardSeparator is a thin visual divider between the headword and its
+// grammatical details, giving the message a clean "card" look.
+const cardSeparator = "➖➖➖➖➖➖➖➖"
+
 func (tr TranslateResult) SimpleString() string {
 	var sb strings.Builder
 	sb.WriteString("<strong>" + localizer_lib.T("fmt_unknown_word") + "</strong>\n")
 	WriteSourceWordString(&sb, tr.SourceWord, tr.SourceLang)
-	WriteTranslationString(&sb, tr.TranslationLang)
-	for _, translation := range tr.Translations {
-		sb.WriteString(fmt.Sprintf("  - %s\n", translation))
+	if len(tr.Translations) > 0 {
+		sb.WriteString("\n")
+		WriteTranslationString(&sb, tr.TranslationLang)
+		for _, translation := range tr.Translations {
+			sb.WriteString("• " + translation + "\n")
+		}
 	}
 	return sb.String()
 }
@@ -45,35 +52,51 @@ func (tr TranslateResult) ToString(msgLang string) string {
 	var sb strings.Builder
 	WriteSourceWordString(&sb, tr.SourceWord, tr.SourceLang)
 
-	if len(tr.Examples) > 0 {
-		sb.WriteString("<strong>" + localizer_lib.T("fmt_examples") + "</strong>\n")
-		for _, example := range tr.Examples {
-			sb.WriteString(fmt.Sprintf("  - %s\n", example))
+	if grammar := tr.grammarLines(); len(grammar) > 0 {
+		sb.WriteString(cardSeparator + "\n")
+		for _, line := range grammar {
+			sb.WriteString(line + "\n")
 		}
 	}
 
-	if len(tr.Conjugation) > 0 {
-		sb.WriteString("<strong>" + localizer_lib.T("fmt_forms") + "</strong> ")
-		sb.WriteString(strings.Join(tr.Conjugation, " * "))
-		sb.WriteString("\n")
+	if len(tr.Examples) > 0 {
+		sb.WriteString("\n<strong>" + localizer_lib.T("fmt_examples") + "</strong>\n")
+		for _, example := range tr.Examples {
+			sb.WriteString("• " + example + "\n")
+		}
 	}
 
+	sb.WriteString("\n")
+	WriteTranslationString(&sb, tr.TranslationLang)
+	return sb.String()
+}
+
+// grammarLines renders the article/infinitive/conjugation details as a group of
+// bold-labelled lines. The article label keeps the 🏷 marker so the value can be
+// parsed back out of the rendered message regardless of interface language.
+func (tr TranslateResult) grammarLines() []string {
+	var lines []string
+
 	if tr.Article != "" {
-		sb.WriteString(fmt.Sprintf(
-			"<strong>%s %s</strong>\n",
-			localizer_lib.T("fmt_article"), tr.Article,
+		lines = append(lines, fmt.Sprintf(
+			"<strong>%s</strong> %s", localizer_lib.T("fmt_article"), tr.Article,
 		))
 	}
 
 	if tr.PartOfSpeech == "verb" && tr.Infinitive != "" {
-		sb.WriteString(fmt.Sprintf(
-			"<strong>%s %s</strong>\n",
-			localizer_lib.T("fmt_infinitive"), tr.Infinitive,
+		lines = append(lines, fmt.Sprintf(
+			"<strong>%s</strong> %s", localizer_lib.T("fmt_infinitive"), tr.Infinitive,
 		))
 	}
 
-	WriteTranslationString(&sb, tr.TranslationLang)
-	return sb.String()
+	if len(tr.Conjugation) > 0 {
+		lines = append(lines, fmt.Sprintf(
+			"<strong>%s</strong> %s",
+			localizer_lib.T("fmt_forms"), strings.Join(tr.Conjugation, " · "),
+		))
+	}
+
+	return lines
 }
 
 func WriteSourceWordString(sb *strings.Builder, sourceWord, sourceLang string) {
@@ -107,8 +130,8 @@ func ParseSourceWordsFromTranslateMsg(input string) string {
 }
 
 // articleMsgRe matches the article line regardless of the (localized) label,
-// anchoring on the 🔍 marker and the der/die/das value.
-var articleMsgRe = regexp.MustCompile(`(?i)🔍[^:\n]*:\s*(der|die|das)\b`)
+// anchoring on the 🏷 marker and the der/die/das value.
+var articleMsgRe = regexp.MustCompile(`(?i)🏷[^:\n]*:\s*(der|die|das)\b`)
 
 func ParseArticleFromTranslateMsg(input string) string {
 	m := articleMsgRe.FindStringSubmatch(input)

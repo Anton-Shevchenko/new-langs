@@ -11,5 +11,5 @@ func FormatWordMessage(sourceWord, translation string) string {
 		return "<i>" + localizer_lib.T("no_source_word") + "</i>"
 	}
 
-	return fmt.Sprintf("<i>%s</i>\n<b>%s</b> - %s", localizer_lib.T("word_added"), sourceWord, translation)
+	return fmt.Sprintf("✅ <i>%s</i>\n\n<b>%s</b> → %s", localizer_lib.T("word_added"), sourceWord, translation)
 }
