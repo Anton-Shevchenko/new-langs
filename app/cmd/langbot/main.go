@@ -22,6 +22,7 @@ import (
 	"langs/internal/interfaces"
 	service "langs/internal/usecase"
 	"langs/internal/usecase/jobs"
+	"langs/pkg/nlp/localizer_lib"
 	"log"
 	"net/http"
 	"os"
@@ -157,9 +158,12 @@ func initDependencies(ctx context.Context) *bot_api.Bot {
 	InitCron(appRouter, wordService, userRepo)
 
 	for _, id := range chatIds {
+		if user, err := userRepo.First(id); err == nil && user != nil {
+			localizer_lib.LoadLang(user.InterfaceLang)
+		}
 		go b.SendMessage(ctx, &bot_api.SendMessageParams{
 			ChatID: id,
-			Text:   "Choose an option:",
+			Text:   localizer_lib.T("menu_main_title"),
 			ReplyMarkup: tgKeyboard.InitMainMenuKeyboard(
 				b,
 				appRouter.OnWordList,

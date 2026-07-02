@@ -9,6 +9,7 @@ import (
 	"langs/internal/consts"
 	TGbot "langs/internal/infrastructure/platform/telegram/helper"
 	"langs/internal/infrastructure/platform/telegram/tg_keyboard"
+	"langs/pkg/nlp/localizer_lib"
 )
 
 func (h *AppRouter) OnBack(ctx context.Context, b *bot.Bot, update *models.Update) {
@@ -30,7 +31,7 @@ func (h *AppRouter) OnMainMenu(ctx context.Context, b *bot.Bot, update *models.U
 		h.OnSecondaryMenu,
 	)
 
-	TGbot.SendMessage(ctx, b, chatID, "Main Menu - Choose an option:", keyboard)
+	TGbot.SendMessage(ctx, b, chatID, localizer_lib.T("menu_main_title"), keyboard)
 }
 
 func (h *AppRouter) OnSecondaryMenu(ctx context.Context, b *bot.Bot, update *models.Update) {
@@ -50,7 +51,7 @@ func (h *AppRouter) OnSecondaryMenu(ctx context.Context, b *bot.Bot, update *mod
 		h.OnExport,
 	)
 
-	TGbot.SendMessage(ctx, b, chatID, "More Options - Choose an option:", keyboard)
+	TGbot.SendMessage(ctx, b, chatID, localizer_lib.T("menu_more_title"), keyboard)
 }
 
 func (h *AppRouter) OnWordList(ctx context.Context, b *bot.Bot, update *models.Update) {
@@ -62,7 +63,7 @@ const wordsPerPage = 10
 func (h *AppRouter) WordList(ctx context.Context, b *bot.Bot, chatId int64, page, msgId int) {
 	totalWords := h.wordRepository.GetCountByChatId(chatId)
 	if totalWords == 0 {
-		h.tgMessage.SendOrEditMessage(ctx, chatId, msgId, "Word list is empty. Send me a word to add it.", nil)
+		h.tgMessage.SendOrEditMessage(ctx, chatId, msgId, localizer_lib.T("word_list_empty"), nil)
 		return
 	}
 
@@ -93,7 +94,7 @@ func (h *AppRouter) WordList(ctx context.Context, b *bot.Bot, chatId int64, page
 		totalPages,
 	)
 
-	h.tgMessage.SendOrEditMessage(ctx, chatId, msgId, fmt.Sprintf("Word List (%d)", totalWords), listKeyboard)
+	h.tgMessage.SendOrEditMessage(ctx, chatId, msgId, fmt.Sprintf("%s (%d)", localizer_lib.T("word_list_title"), totalWords), listKeyboard)
 }
 
 func (h *AppRouter) OnBook(ctx context.Context, b *bot.Bot, update *models.Update) {

@@ -150,6 +150,7 @@ func (h *AppRouter) handleCallback(ctx context.Context, b *bot.Bot, update *mode
 		strings.HasPrefix(callbackData, "day_") ||
 		strings.HasPrefix(callbackData, setNativeLangPrefix) ||
 		strings.HasPrefix(callbackData, setTargetLangPrefix) ||
+		strings.HasPrefix(callbackData, setIfaceLangPrefix) ||
 		callbackData == "days_all" ||
 		callbackData == "days_weekdays" ||
 		callbackData == "days_weekend" {

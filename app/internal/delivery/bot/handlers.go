@@ -127,7 +127,8 @@ func (h *AppRouter) HandleSettingsCallbacks(
 	}
 
 	if strings.HasPrefix(callbackData, setNativeLangPrefix) ||
-		strings.HasPrefix(callbackData, setTargetLangPrefix) {
+		strings.HasPrefix(callbackData, setTargetLangPrefix) ||
+		strings.HasPrefix(callbackData, setIfaceLangPrefix) {
 		h.HandleLangChange(ctx, b, mes, data)
 		return
 	}

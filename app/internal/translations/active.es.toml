@@ -9,3 +9,147 @@ other = "Seleccione el idioma que desea estudiar"
 
 [You_will_learn]
 other = "Aprenderás"
+
+[btn_list]
+other = "📚 Lista"
+
+[btn_test_me]
+other = "🧠 Ponme a prueba"
+
+[btn_more_options]
+other = "Más opciones"
+
+[btn_search]
+other = "🔍 Buscar"
+
+[btn_reader]
+other = "📖 Lector"
+
+[btn_settings]
+other = "⚙️ Ajustes"
+
+[btn_export]
+other = "⬇️ Exportar CSV"
+
+[btn_main_menu]
+other = "Menú principal"
+
+[btn_back]
+other = "Atrás"
+
+[menu_main_title]
+other = "Menú principal: elige una opción:"
+
+[menu_more_title]
+other = "Más opciones: elige una opción:"
+
+[word_list_empty]
+other = "La lista de palabras está vacía. Envíame una palabra para añadirla."
+
+[word_list_title]
+other = "Lista de palabras"
+
+[settings_btn_native]
+other = "🌐 Lengua materna"
+
+[settings_btn_target]
+other = "🎯 Idioma a aprender"
+
+[settings_btn_timezone]
+other = "🕐 Zona horaria"
+
+[settings_btn_frequency]
+other = "⏱ Frecuencia de test"
+
+[settings_btn_quiet]
+other = "🔇 Horas de silencio"
+
+[settings_btn_start]
+other = "⏰ Hora de inicio"
+
+[settings_btn_end]
+other = "⏰ Hora de fin"
+
+[settings_btn_days]
+other = "📅 Días de la semana"
+
+[settings_select_native]
+other = "🌐 Elige tu lengua materna:"
+
+[settings_select_target]
+other = "🎯 Elige el idioma que quieres aprender:"
+
+[settings_btn_interface]
+other = "🗣 Idioma de la interfaz"
+
+[settings_select_interface]
+other = "🗣 Elige el idioma de la interfaz:"
+
+[settings_langs_differ]
+other = "⚠️ La lengua materna y la de aprendizaje deben ser diferentes."
+
+[settings_select_timezone]
+other = "🕐 Elige tu zona horaria o escríbela (p. ej., Europe/Madrid):"
+
+[settings_frequency_q]
+other = "⏱ ¿Con qué frecuencia debo enviarte test?"
+
+[settings_enter_start]
+other = "⏰ Introduce la hora de inicio (formato HH:MM, p. ej., 22:00):"
+
+[settings_enter_end]
+other = "⏰ Introduce la hora de fin (formato HH:MM, p. ej., 08:00):"
+
+[settings_select_days]
+other = "📅 Elige los días para las horas de silencio:"
+
+[settings_days_all]
+other = "Todos los días"
+
+[settings_days_weekdays]
+other = "Días laborables"
+
+[settings_days_weekend]
+other = "Fin de semana"
+
+[export_choose_pair]
+other = "⬇️ Elige un par de idiomas para exportar como CSV:"
+
+[export_no_words]
+other = "Aún no tienes palabras guardadas para exportar."
+
+[export_all_words]
+other = "⬇️ Todas las palabras"
+
+[export_none_selection]
+other = "No se encontraron palabras para esta selección."
+
+[export_exported]
+other = "Palabras exportadas"
+
+[fmt_source_word]
+other = "Palabra original:"
+
+[fmt_translations]
+other = "Traducciones:"
+
+[fmt_examples]
+other = "📖 Ejemplos:"
+
+[fmt_forms]
+other = "📖 Formas:"
+
+[fmt_article]
+other = "🔍 Artículo:"
+
+[fmt_infinitive]
+other = "🔍 Infinitivo:"
+
+[fmt_unknown_word]
+other = "❓ Palabra desconocida."
+
+[word_added]
+other = "Palabra añadida a tu lista"
+
+[no_source_word]
+other = "No se encontró la palabra original."

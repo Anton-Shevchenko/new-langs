@@ -27,7 +27,9 @@ func init() {
 func T(messageID string) string {
 	msg, err := Localaizer.Localize(&i18n.LocalizeConfig{MessageID: messageID})
 	if err != nil {
-		return "translation missing"
+		// Fall back to the message ID so a missing translation is still
+		// readable instead of a generic placeholder.
+		return messageID
 	}
 	return msg
 }
@@ -40,5 +42,6 @@ func LoadLang(lang string) {
 	if _, err := os.Stat(filePath); err == nil {
 		bundle.MustLoadMessageFile(filePath)
 	}
-	Localaizer = i18n.NewLocalizer(bundle, lang)
+	// English is the fallback language for any keys missing in `lang`.
+	Localaizer = i18n.NewLocalizer(bundle, lang, "en")
 }

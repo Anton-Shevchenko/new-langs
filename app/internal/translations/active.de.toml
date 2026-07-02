@@ -9,3 +9,147 @@ other = "Wählen Sie die Sprache, die Sie lernen möchten"
 
 [You_will_learn]
 other = "Sie werden lernen"
+
+[btn_list]
+other = "📚 Liste"
+
+[btn_test_me]
+other = "🧠 Teste mich"
+
+[btn_more_options]
+other = "Mehr Optionen"
+
+[btn_search]
+other = "🔍 Suche"
+
+[btn_reader]
+other = "📖 Leser"
+
+[btn_settings]
+other = "⚙️ Einstellungen"
+
+[btn_export]
+other = "⬇️ CSV exportieren"
+
+[btn_main_menu]
+other = "Hauptmenü"
+
+[btn_back]
+other = "Zurück"
+
+[menu_main_title]
+other = "Hauptmenü – wähle eine Option:"
+
+[menu_more_title]
+other = "Mehr Optionen – wähle eine Option:"
+
+[word_list_empty]
+other = "Die Wortliste ist leer. Sende mir ein Wort, um es hinzuzufügen."
+
+[word_list_title]
+other = "Wortliste"
+
+[settings_btn_native]
+other = "🌐 Muttersprache"
+
+[settings_btn_target]
+other = "🎯 Lernsprache"
+
+[settings_btn_timezone]
+other = "🕐 Zeitzone einstellen"
+
+[settings_btn_frequency]
+other = "⏱ Testhäufigkeit"
+
+[settings_btn_quiet]
+other = "🔇 Ruhezeiten umschalten"
+
+[settings_btn_start]
+other = "⏰ Startzeit"
+
+[settings_btn_end]
+other = "⏰ Endzeit"
+
+[settings_btn_days]
+other = "📅 Wochentage"
+
+[settings_select_native]
+other = "🌐 Wähle deine Muttersprache:"
+
+[settings_select_target]
+other = "🎯 Wähle die Sprache, die du lernen möchtest:"
+
+[settings_btn_interface]
+other = "🗣 Oberflächensprache"
+
+[settings_select_interface]
+other = "🗣 Wähle die Oberflächensprache:"
+
+[settings_langs_differ]
+other = "⚠️ Mutter- und Lernsprache müssen unterschiedlich sein."
+
+[settings_select_timezone]
+other = "🕐 Wähle deine Zeitzone oder gib sie ein (z. B. Europe/Berlin):"
+
+[settings_frequency_q]
+other = "⏱ Wie oft soll ich dir Tests senden?"
+
+[settings_enter_start]
+other = "⏰ Startzeit eingeben (Format HH:MM, z. B. 22:00):"
+
+[settings_enter_end]
+other = "⏰ Endzeit eingeben (Format HH:MM, z. B. 08:00):"
+
+[settings_select_days]
+other = "📅 Wähle die Tage für die Ruhezeiten:"
+
+[settings_days_all]
+other = "Alle Tage"
+
+[settings_days_weekdays]
+other = "Wochentage"
+
+[settings_days_weekend]
+other = "Wochenende"
+
+[export_choose_pair]
+other = "⬇️ Wähle ein Sprachpaar für den CSV-Export:"
+
+[export_no_words]
+other = "Du hast noch keine gespeicherten Wörter zum Exportieren."
+
+[export_all_words]
+other = "⬇️ Alle Wörter"
+
+[export_none_selection]
+other = "Für diese Auswahl wurden keine Wörter gefunden."
+
+[export_exported]
+other = "Exportierte Wörter"
+
+[fmt_source_word]
+other = "Ausgangswort:"
+
+[fmt_translations]
+other = "Übersetzungen:"
+
+[fmt_examples]
+other = "📖 Beispiele:"
+
+[fmt_forms]
+other = "📖 Formen:"
+
+[fmt_article]
+other = "🔍 Artikel:"
+
+[fmt_infinitive]
+other = "🔍 Infinitiv:"
+
+[fmt_unknown_word]
+other = "❓ Unbekanntes Wort."
+
+[word_added]
+other = "Wort zu deiner Liste hinzugefügt"
+
+[no_source_word]
+other = "Kein Ausgangswort gefunden."
