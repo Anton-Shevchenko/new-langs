@@ -6,6 +6,7 @@ import (
 	"github.com/go-telegram/ui/keyboard/inline"
 	"github.com/go-telegram/ui/keyboard/reply"
 	"langs/internal/infrastructure/platform/telegram/helper"
+	"langs/pkg/nlp/localizer_lib"
 	"strconv"
 )
 
@@ -103,10 +104,10 @@ func (r *TGKeyboard) InitMenuKeyboard(
 	onBack bot.HandlerFunc,
 ) *reply.ReplyKeyboard {
 	return reply.New(reply.IsSelective()).
-		Button("List", b, bot.MatchTypeExact, onWordList).
-		Button("Test me", b, bot.MatchTypeExact, onTestMe).
+		Button(localizer_lib.T("btn_list"), b, bot.MatchTypeExact, onWordList).
+		Button(localizer_lib.T("btn_test_me"), b, bot.MatchTypeExact, onTestMe).
 		Row().
-		Button("More Options", b, bot.MatchTypeExact, onBack)
+		Button(localizer_lib.T("btn_more_options"), b, bot.MatchTypeExact, onBack)
 }
 
 func (r *TGKeyboard) InitMainMenuKeyboard(
@@ -116,10 +117,10 @@ func (r *TGKeyboard) InitMainMenuKeyboard(
 	onMoreOptions bot.HandlerFunc,
 ) *reply.ReplyKeyboard {
 	return reply.New(reply.IsSelective()).
-		Button("📚 List", b, bot.MatchTypeExact, onWordList).
-		Button("🧠 Test me", b, bot.MatchTypeExact, onTestMe).
+		Button(localizer_lib.T("btn_list"), b, bot.MatchTypeExact, onWordList).
+		Button(localizer_lib.T("btn_test_me"), b, bot.MatchTypeExact, onTestMe).
 		Row().
-		Button("More Options", b, bot.MatchTypeExact, onMoreOptions)
+		Button(localizer_lib.T("btn_more_options"), b, bot.MatchTypeExact, onMoreOptions)
 }
 
 func (r *TGKeyboard) InitSecondaryMenuKeyboard(
@@ -131,13 +132,13 @@ func (r *TGKeyboard) InitSecondaryMenuKeyboard(
 	onExport bot.HandlerFunc,
 ) *reply.ReplyKeyboard {
 	return reply.New(reply.IsSelective()).
-		Button("🔍 Search", b, bot.MatchTypeExact, onWordSearch).
-		Button("📖 Reader", b, bot.MatchTypeExact, onBook).
+		Button(localizer_lib.T("btn_search"), b, bot.MatchTypeExact, onWordSearch).
+		Button(localizer_lib.T("btn_reader"), b, bot.MatchTypeExact, onBook).
 		Row().
-		Button("⚙️ Settings", b, bot.MatchTypeExact, onSettings).
-		Button("⬇️ Export CSV", b, bot.MatchTypeExact, onExport).
+		Button(localizer_lib.T("btn_settings"), b, bot.MatchTypeExact, onSettings).
+		Button(localizer_lib.T("btn_export"), b, bot.MatchTypeExact, onExport).
 		Row().
-		Button("Main Menu", b, bot.MatchTypeExact, onMainMenu)
+		Button(localizer_lib.T("btn_main_menu"), b, bot.MatchTypeExact, onMainMenu)
 }
 
 func (r *TGKeyboard) InitReaderKeyboard(
@@ -152,7 +153,7 @@ func (r *TGKeyboard) InitReaderKeyboard(
 		Button("🔄\u200B", b, bot.MatchTypeExact, onBookResend).
 		Button("➡️\u200B", b, bot.MatchTypeExact, onBookNext).
 		Row().
-		Button("Back", b, bot.MatchTypeExact, onBack)
+		Button(localizer_lib.T("btn_back"), b, bot.MatchTypeExact, onBack)
 }
 
 func (r *TGKeyboard) GetWordViewKeyboard(

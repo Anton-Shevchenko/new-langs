@@ -9,3 +9,147 @@ other = "Select language you want to learn"
 
 [You_will_learn]
 other = "You will learn"
+
+[btn_list]
+other = "📚 List"
+
+[btn_test_me]
+other = "🧠 Test me"
+
+[btn_more_options]
+other = "More Options"
+
+[btn_search]
+other = "🔍 Search"
+
+[btn_reader]
+other = "📖 Reader"
+
+[btn_settings]
+other = "⚙️ Settings"
+
+[btn_export]
+other = "⬇️ Export CSV"
+
+[btn_main_menu]
+other = "Main Menu"
+
+[btn_back]
+other = "Back"
+
+[menu_main_title]
+other = "Main Menu - Choose an option:"
+
+[menu_more_title]
+other = "More Options - Choose an option:"
+
+[word_list_empty]
+other = "Word list is empty. Send me a word to add it."
+
+[word_list_title]
+other = "Word List"
+
+[settings_btn_native]
+other = "🌐 Native Language"
+
+[settings_btn_target]
+other = "🎯 Learning Language"
+
+[settings_btn_timezone]
+other = "🕐 Set Timezone"
+
+[settings_btn_frequency]
+other = "⏱ Test Frequency"
+
+[settings_btn_quiet]
+other = "🔇 Toggle Quiet Hours"
+
+[settings_btn_start]
+other = "⏰ Start Time"
+
+[settings_btn_end]
+other = "⏰ End Time"
+
+[settings_btn_days]
+other = "📅 Days of Week"
+
+[settings_select_native]
+other = "🌐 Select your native language:"
+
+[settings_select_target]
+other = "🎯 Select the language you want to learn:"
+
+[settings_btn_interface]
+other = "🗣 Interface Language"
+
+[settings_select_interface]
+other = "🗣 Select the interface language:"
+
+[settings_langs_differ]
+other = "⚠️ Native and learning language must be different."
+
+[settings_select_timezone]
+other = "🕐 Select your timezone or type it (e.g., Europe/Berlin):"
+
+[settings_frequency_q]
+other = "⏱ How often should I send you tests?"
+
+[settings_enter_start]
+other = "⏰ Enter start time (HH:MM format, e.g., 22:00):"
+
+[settings_enter_end]
+other = "⏰ Enter end time (HH:MM format, e.g., 08:00):"
+
+[settings_select_days]
+other = "📅 Select days for quiet hours:"
+
+[settings_days_all]
+other = "All Days"
+
+[settings_days_weekdays]
+other = "Weekdays"
+
+[settings_days_weekend]
+other = "Weekend"
+
+[export_choose_pair]
+other = "⬇️ Choose a language pair to export as CSV:"
+
+[export_no_words]
+other = "You have no saved words to export yet."
+
+[export_all_words]
+other = "⬇️ All words"
+
+[export_none_selection]
+other = "No words found for this selection."
+
+[export_exported]
+other = "Exported words"
+
+[fmt_source_word]
+other = "Source Word:"
+
+[fmt_translations]
+other = "Translations:"
+
+[fmt_examples]
+other = "📖 Examples:"
+
+[fmt_forms]
+other = "📖 Forms:"
+
+[fmt_article]
+other = "🔍 Article:"
+
+[fmt_infinitive]
+other = "🔍 Infinitive:"
+
+[fmt_unknown_word]
+other = "❓ Unknown word."
+
+[word_added]
+other = "Word added to your list"
+
+[no_source_word]
+other = "No source word found."

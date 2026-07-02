@@ -9,3 +9,147 @@ other = "Оберіть мову, яку хочете вивчати"
 
 [You_will_learn]
 other = "Ви будете вивчати"
+
+[btn_list]
+other = "📚 Список"
+
+[btn_test_me]
+other = "🧠 Перевір мене"
+
+[btn_more_options]
+other = "Більше опцій"
+
+[btn_search]
+other = "🔍 Пошук"
+
+[btn_reader]
+other = "📖 Читалка"
+
+[btn_settings]
+other = "⚙️ Налаштування"
+
+[btn_export]
+other = "⬇️ Експорт CSV"
+
+[btn_main_menu]
+other = "Головне меню"
+
+[btn_back]
+other = "Назад"
+
+[menu_main_title]
+other = "Головне меню — оберіть опцію:"
+
+[menu_more_title]
+other = "Більше опцій — оберіть опцію:"
+
+[word_list_empty]
+other = "Список слів порожній. Надішли слово, щоб додати його."
+
+[word_list_title]
+other = "Список слів"
+
+[settings_btn_native]
+other = "🌐 Рідна мова"
+
+[settings_btn_target]
+other = "🎯 Мова вивчення"
+
+[settings_btn_timezone]
+other = "🕐 Часовий пояс"
+
+[settings_btn_frequency]
+other = "⏱ Частота тестів"
+
+[settings_btn_quiet]
+other = "🔇 Тихі години"
+
+[settings_btn_start]
+other = "⏰ Час початку"
+
+[settings_btn_end]
+other = "⏰ Час завершення"
+
+[settings_btn_days]
+other = "📅 Дні тижня"
+
+[settings_select_native]
+other = "🌐 Оберіть вашу рідну мову:"
+
+[settings_select_target]
+other = "🎯 Оберіть мову, яку хочете вивчати:"
+
+[settings_btn_interface]
+other = "🗣 Мова інтерфейсу"
+
+[settings_select_interface]
+other = "🗣 Оберіть мову інтерфейсу:"
+
+[settings_langs_differ]
+other = "⚠️ Рідна мова та мова вивчення мають бути різними."
+
+[settings_select_timezone]
+other = "🕐 Оберіть часовий пояс або введіть його (напр., Europe/Kyiv):"
+
+[settings_frequency_q]
+other = "⏱ Як часто надсилати тобі тести?"
+
+[settings_enter_start]
+other = "⏰ Введіть час початку (формат HH:MM, напр., 22:00):"
+
+[settings_enter_end]
+other = "⏰ Введіть час завершення (формат HH:MM, напр., 08:00):"
+
+[settings_select_days]
+other = "📅 Оберіть дні для тихих годин:"
+
+[settings_days_all]
+other = "Усі дні"
+
+[settings_days_weekdays]
+other = "Будні"
+
+[settings_days_weekend]
+other = "Вихідні"
+
+[export_choose_pair]
+other = "⬇️ Оберіть мовну пару для експорту в CSV:"
+
+[export_no_words]
+other = "У тебе ще немає збережених слів для експорту."
+
+[export_all_words]
+other = "⬇️ Усі слова"
+
+[export_none_selection]
+other = "Для цього вибору слів не знайдено."
+
+[export_exported]
+other = "Експортовано слів"
+
+[fmt_source_word]
+other = "Вихідне слово:"
+
+[fmt_translations]
+other = "Переклади:"
+
+[fmt_examples]
+other = "📖 Приклади:"
+
+[fmt_forms]
+other = "📖 Форми:"
+
+[fmt_article]
+other = "🔍 Артикль:"
+
+[fmt_infinitive]
+other = "🔍 Інфінітив:"
+
+[fmt_unknown_word]
+other = "❓ Невідоме слово."
+
+[word_added]
+other = "Слово додано до вашого списку"
+
+[no_source_word]
+other = "Вихідне слово не знайдено."

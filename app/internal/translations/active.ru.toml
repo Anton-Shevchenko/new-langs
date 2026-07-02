@@ -1,0 +1,155 @@
+[You_selected]
+other = "Вы выбрали"
+
+[Your_native_lang]
+other = "Ваш родной язык"
+
+[Select_language_you_want_to_learn]
+other = "Выберите язык, который хотите изучать"
+
+[You_will_learn]
+other = "Вы будете изучать"
+
+[btn_list]
+other = "📚 Список"
+
+[btn_test_me]
+other = "🧠 Проверь меня"
+
+[btn_more_options]
+other = "Больше опций"
+
+[btn_search]
+other = "🔍 Поиск"
+
+[btn_reader]
+other = "📖 Читалка"
+
+[btn_settings]
+other = "⚙️ Настройки"
+
+[btn_export]
+other = "⬇️ Экспорт CSV"
+
+[btn_main_menu]
+other = "Главное меню"
+
+[btn_back]
+other = "Назад"
+
+[menu_main_title]
+other = "Главное меню — выберите опцию:"
+
+[menu_more_title]
+other = "Больше опций — выберите опцию:"
+
+[word_list_empty]
+other = "Список слов пуст. Отправь слово, чтобы добавить его."
+
+[word_list_title]
+other = "Список слов"
+
+[settings_btn_native]
+other = "🌐 Родной язык"
+
+[settings_btn_target]
+other = "🎯 Изучаемый язык"
+
+[settings_btn_timezone]
+other = "🕐 Часовой пояс"
+
+[settings_btn_frequency]
+other = "⏱ Частота тестов"
+
+[settings_btn_quiet]
+other = "🔇 Тихие часы"
+
+[settings_btn_start]
+other = "⏰ Время начала"
+
+[settings_btn_end]
+other = "⏰ Время окончания"
+
+[settings_btn_days]
+other = "📅 Дни недели"
+
+[settings_select_native]
+other = "🌐 Выберите ваш родной язык:"
+
+[settings_select_target]
+other = "🎯 Выберите язык, который хотите изучать:"
+
+[settings_btn_interface]
+other = "🗣 Язык интерфейса"
+
+[settings_select_interface]
+other = "🗣 Выберите язык интерфейса:"
+
+[settings_langs_differ]
+other = "⚠️ Родной и изучаемый язык должны отличаться."
+
+[settings_select_timezone]
+other = "🕐 Выберите часовой пояс или введите его (напр., Europe/Kyiv):"
+
+[settings_frequency_q]
+other = "⏱ Как часто присылать тебе тесты?"
+
+[settings_enter_start]
+other = "⏰ Введите время начала (формат HH:MM, напр., 22:00):"
+
+[settings_enter_end]
+other = "⏰ Введите время окончания (формат HH:MM, напр., 08:00):"
+
+[settings_select_days]
+other = "📅 Выберите дни для тихих часов:"
+
+[settings_days_all]
+other = "Все дни"
+
+[settings_days_weekdays]
+other = "Будни"
+
+[settings_days_weekend]
+other = "Выходные"
+
+[export_choose_pair]
+other = "⬇️ Выберите языковую пару для экспорта в CSV:"
+
+[export_no_words]
+other = "У тебя пока нет сохранённых слов для экспорта."
+
+[export_all_words]
+other = "⬇️ Все слова"
+
+[export_none_selection]
+other = "Для этого выбора слов не найдено."
+
+[export_exported]
+other = "Экспортировано слов"
+
+[fmt_source_word]
+other = "Исходное слово:"
+
+[fmt_translations]
+other = "Переводы:"
+
+[fmt_examples]
+other = "📖 Примеры:"
+
+[fmt_forms]
+other = "📖 Формы:"
+
+[fmt_article]
+other = "🔍 Артикль:"
+
+[fmt_infinitive]
+other = "🔍 Инфинитив:"
+
+[fmt_unknown_word]
+other = "❓ Неизвестное слово."
+
+[word_added]
+other = "Слово добавлено в ваш список"
+
+[no_source_word]
+other = "Исходное слово не найдено."

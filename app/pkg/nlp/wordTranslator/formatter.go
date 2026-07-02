@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"langs/internal/consts"
+	"langs/pkg/nlp/localizer_lib"
 )
 
 func (tr TranslateResult) ToSentenceString() string {
@@ -21,7 +22,7 @@ func (tr TranslateResult) ToNativeWordString() string {
 
 func (tr TranslateResult) SimpleString() string {
 	var sb strings.Builder
-	sb.WriteString("<strong>❓ Unknown word.</strong>\n")
+	sb.WriteString("<strong>" + localizer_lib.T("fmt_unknown_word") + "</strong>\n")
 	WriteSourceWordString(&sb, tr.SourceWord, tr.SourceLang)
 	WriteTranslationString(&sb, tr.TranslationLang)
 	for _, translation := range tr.Translations {
@@ -45,29 +46,29 @@ func (tr TranslateResult) ToString(msgLang string) string {
 	WriteSourceWordString(&sb, tr.SourceWord, tr.SourceLang)
 
 	if len(tr.Examples) > 0 {
-		sb.WriteString("<strong>📖 Examples:</strong>\n")
+		sb.WriteString("<strong>" + localizer_lib.T("fmt_examples") + "</strong>\n")
 		for _, example := range tr.Examples {
 			sb.WriteString(fmt.Sprintf("  - %s\n", example))
 		}
 	}
 
 	if len(tr.Conjugation) > 0 {
-		sb.WriteString("<strong>📖 Forms:</strong> ")
+		sb.WriteString("<strong>" + localizer_lib.T("fmt_forms") + "</strong> ")
 		sb.WriteString(strings.Join(tr.Conjugation, " * "))
 		sb.WriteString("\n")
 	}
 
 	if tr.Article != "" {
 		sb.WriteString(fmt.Sprintf(
-			"<strong>🔍 Article: %s</strong>\n",
-			tr.Article,
+			"<strong>%s %s</strong>\n",
+			localizer_lib.T("fmt_article"), tr.Article,
 		))
 	}
 
 	if tr.PartOfSpeech == "verb" && tr.Infinitive != "" {
 		sb.WriteString(fmt.Sprintf(
-			"<strong>🔍 Infinitive: %s</strong>\n",
-			tr.Infinitive,
+			"<strong>%s %s</strong>\n",
+			localizer_lib.T("fmt_infinitive"), tr.Infinitive,
 		))
 	}
 
@@ -77,33 +78,42 @@ func (tr TranslateResult) ToString(msgLang string) string {
 
 func WriteSourceWordString(sb *strings.Builder, sourceWord, sourceLang string) {
 	sb.WriteString(fmt.Sprintf(
-		"<strong>%s Source Word:</strong> %s\n",
-		consts.LangFlags[sourceLang], sourceWord,
+		"<strong>%s %s</strong> %s\n",
+		consts.LangFlags[sourceLang], localizer_lib.T("fmt_source_word"), sourceWord,
 	))
 }
 
 func WriteTranslationString(sb *strings.Builder, targetLang string) {
 	sb.WriteString(fmt.Sprintf(
-		"<strong>%s Translations:</strong>\n",
-		consts.LangFlags[targetLang],
+		"<strong>%s %s</strong>\n",
+		consts.LangFlags[targetLang], localizer_lib.T("fmt_translations"),
 	))
 }
 
+// ParseSourceWordsFromTranslateMsg extracts the source word from the first line
+// of a rendered translate message. It is language-independent: the first line
+// always has the shape "{flag} {label}: {word}", so everything after the first
+// ": " is the word.
 func ParseSourceWordsFromTranslateMsg(input string) string {
-	re := regexp.MustCompile(`Source (Sentence|Word):\s+(.*)(\n|$)`)
-	match := re.FindStringSubmatch(input)
-	if len(match) > 2 {
-		return match[2]
+	firstLine := input
+	if idx := strings.IndexByte(input, '\n'); idx != -1 {
+		firstLine = input[:idx]
 	}
-	return ""
-}
-
-func ParseArticleFromTranslateMsg(input string) string {
-	re := regexp.MustCompile(`🔍 Article:\s*([[:alpha:]]+)`)
-	m := re.FindStringSubmatch(input)
-	if len(m) == 2 {
-		return m[1]
-	} else {
+	sep := strings.Index(firstLine, ": ")
+	if sep == -1 {
 		return ""
 	}
+	return strings.TrimSpace(firstLine[sep+2:])
+}
+
+// articleMsgRe matches the article line regardless of the (localized) label,
+// anchoring on the 🔍 marker and the der/die/das value.
+var articleMsgRe = regexp.MustCompile(`(?i)🔍[^:\n]*:\s*(der|die|das)\b`)
+
+func ParseArticleFromTranslateMsg(input string) string {
+	m := articleMsgRe.FindStringSubmatch(input)
+	if len(m) == 2 {
+		return strings.ToLower(m[1])
+	}
+	return ""
 }

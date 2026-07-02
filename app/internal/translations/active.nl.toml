@@ -1,0 +1,155 @@
+[You_selected]
+other = "Je hebt gekozen"
+
+[Your_native_lang]
+other = "Je moedertaal"
+
+[Select_language_you_want_to_learn]
+other = "Kies de taal die je wilt leren"
+
+[You_will_learn]
+other = "Je gaat leren"
+
+[btn_list]
+other = "📚 Lijst"
+
+[btn_test_me]
+other = "🧠 Overhoor me"
+
+[btn_more_options]
+other = "Meer opties"
+
+[btn_search]
+other = "🔍 Zoeken"
+
+[btn_reader]
+other = "📖 Lezer"
+
+[btn_settings]
+other = "⚙️ Instellingen"
+
+[btn_export]
+other = "⬇️ CSV exporteren"
+
+[btn_main_menu]
+other = "Hoofdmenu"
+
+[btn_back]
+other = "Terug"
+
+[menu_main_title]
+other = "Hoofdmenu – kies een optie:"
+
+[menu_more_title]
+other = "Meer opties – kies een optie:"
+
+[word_list_empty]
+other = "De woordenlijst is leeg. Stuur me een woord om het toe te voegen."
+
+[word_list_title]
+other = "Woordenlijst"
+
+[settings_btn_native]
+other = "🌐 Moedertaal"
+
+[settings_btn_target]
+other = "🎯 Leertaal"
+
+[settings_btn_timezone]
+other = "🕐 Tijdzone instellen"
+
+[settings_btn_frequency]
+other = "⏱ Testfrequentie"
+
+[settings_btn_quiet]
+other = "🔇 Stille uren"
+
+[settings_btn_start]
+other = "⏰ Starttijd"
+
+[settings_btn_end]
+other = "⏰ Eindtijd"
+
+[settings_btn_days]
+other = "📅 Dagen van de week"
+
+[settings_select_native]
+other = "🌐 Kies je moedertaal:"
+
+[settings_select_target]
+other = "🎯 Kies de taal die je wilt leren:"
+
+[settings_btn_interface]
+other = "🗣 Interfacetaal"
+
+[settings_select_interface]
+other = "🗣 Kies de interfacetaal:"
+
+[settings_langs_differ]
+other = "⚠️ Moedertaal en leertaal moeten verschillend zijn."
+
+[settings_select_timezone]
+other = "🕐 Kies je tijdzone of typ hem (bijv. Europe/Amsterdam):"
+
+[settings_frequency_q]
+other = "⏱ Hoe vaak moet ik je toetsen sturen?"
+
+[settings_enter_start]
+other = "⏰ Voer de starttijd in (formaat HH:MM, bijv. 22:00):"
+
+[settings_enter_end]
+other = "⏰ Voer de eindtijd in (formaat HH:MM, bijv. 08:00):"
+
+[settings_select_days]
+other = "📅 Kies de dagen voor stille uren:"
+
+[settings_days_all]
+other = "Alle dagen"
+
+[settings_days_weekdays]
+other = "Weekdagen"
+
+[settings_days_weekend]
+other = "Weekend"
+
+[export_choose_pair]
+other = "⬇️ Kies een talenpaar om als CSV te exporteren:"
+
+[export_no_words]
+other = "Je hebt nog geen opgeslagen woorden om te exporteren."
+
+[export_all_words]
+other = "⬇️ Alle woorden"
+
+[export_none_selection]
+other = "Geen woorden gevonden voor deze selectie."
+
+[export_exported]
+other = "Geëxporteerde woorden"
+
+[fmt_source_word]
+other = "Bronwoord:"
+
+[fmt_translations]
+other = "Vertalingen:"
+
+[fmt_examples]
+other = "📖 Voorbeelden:"
+
+[fmt_forms]
+other = "📖 Vormen:"
+
+[fmt_article]
+other = "🔍 Lidwoord:"
+
+[fmt_infinitive]
+other = "🔍 Infinitief:"
+
+[fmt_unknown_word]
+other = "❓ Onbekend woord."
+
+[word_added]
+other = "Woord toegevoegd aan je lijst"
+
+[no_source_word]
+other = "Geen bronwoord gevonden."

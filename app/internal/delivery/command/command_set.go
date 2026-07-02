@@ -44,7 +44,7 @@ func (s *CommandSet) Start(ctx context.Context, b *bot.Bot, update *models.Updat
 
 	go b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
-		Text:   "Main Menu - Choose an option:",
+		Text:   localizer_lib.T("menu_main_title"),
 		ReplyMarkup: s.tgKeyboard.InitMainMenuKeyboard(
 			b,
 			s.handler.OnWordList,

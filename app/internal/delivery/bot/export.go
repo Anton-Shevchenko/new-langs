@@ -12,6 +12,7 @@ import (
 	"langs/internal/consts"
 	"langs/internal/domain"
 	TGbot "langs/internal/infrastructure/platform/telegram/helper"
+	"langs/pkg/nlp/localizer_lib"
 )
 
 const exportCallbackPrefix = "export_"
@@ -28,7 +29,7 @@ func (h *AppRouter) OnExport(ctx context.Context, b *bot.Bot, update *models.Upd
 		return
 	}
 	if len(pairs) == 0 {
-		TGbot.SendMessage(ctx, b, chatID, "You have no saved words to export yet.", nil)
+		TGbot.SendMessage(ctx, b, chatID, localizer_lib.T("export_no_words"), nil)
 		return
 	}
 
@@ -41,13 +42,13 @@ func (h *AppRouter) OnExport(ctx context.Context, b *bot.Bot, update *models.Upd
 	}
 	if len(pairs) > 1 {
 		rows = append(rows, []models.InlineKeyboardButton{{
-			Text:         "⬇️ All words",
+			Text:         localizer_lib.T("export_all_words"),
 			CallbackData: exportCallbackPrefix + "all",
 		}})
 	}
 
 	TGbot.SendMessage(ctx, b, chatID,
-		"⬇️ Choose a language pair to export as CSV:",
+		localizer_lib.T("export_choose_pair"),
 		&models.InlineKeyboardMarkup{InlineKeyboard: rows})
 }
 
@@ -80,7 +81,7 @@ func (h *AppRouter) HandleExportCallback(ctx context.Context, b *bot.Bot, mes mo
 		return
 	}
 	if len(words) == 0 {
-		TGbot.SendMessage(ctx, b, chatID, "No words found for this selection.", nil)
+		TGbot.SendMessage(ctx, b, chatID, localizer_lib.T("export_none_selection"), nil)
 		return
 	}
 
@@ -96,7 +97,7 @@ func (h *AppRouter) HandleExportCallback(ctx context.Context, b *bot.Bot, mes mo
 			Filename: fileName,
 			Data:     bytes.NewReader(csvBytes),
 		},
-		Caption: fmt.Sprintf("Exported %d words.", len(words)),
+		Caption: fmt.Sprintf("%s: %d", localizer_lib.T("export_exported"), len(words)),
 	})
 	if err != nil {
 		h.handleError(ctx, b, chatID, "Could not send file")
