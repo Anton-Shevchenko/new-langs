@@ -109,6 +109,43 @@ func TestQuietHoursToggleDay(t *testing.T) {
 	})
 }
 
+func TestGetTestIntervalHours(t *testing.T) {
+	t.Run("ValidInterval", func(t *testing.T) {
+		user := &model.User{TestInterval: 5}
+		assert.Equal(t, 5, user.GetTestIntervalHours())
+	})
+
+	t.Run("ZeroFallsBackToDefault", func(t *testing.T) {
+		user := &model.User{TestInterval: 0}
+		assert.Equal(t, model.DefaultTestIntervalHours, user.GetTestIntervalHours())
+	})
+
+	t.Run("LegacyValueFallsBackToDefault", func(t *testing.T) {
+		// Legacy rows stored 60 (minutes); it is out of the 1-8 range.
+		user := &model.User{TestInterval: 60}
+		assert.Equal(t, model.DefaultTestIntervalHours, user.GetTestIntervalHours())
+	})
+}
+
+func TestIsTestDue(t *testing.T) {
+	now := mustTime(t, "2026-07-01 12:00")
+
+	t.Run("NeverSentIsDue", func(t *testing.T) {
+		user := &model.User{TestInterval: 3}
+		assert.True(t, user.IsTestDue(now))
+	})
+
+	t.Run("NotEnoughTimePassed", func(t *testing.T) {
+		user := &model.User{TestInterval: 3, LastTestSentAt: now.Add(-2 * time.Hour)}
+		assert.False(t, user.IsTestDue(now))
+	})
+
+	t.Run("EnoughTimePassed", func(t *testing.T) {
+		user := &model.User{TestInterval: 3, LastTestSentAt: now.Add(-3 * time.Hour)}
+		assert.True(t, user.IsTestDue(now))
+	})
+}
+
 func TestGetCurrentTimeInTimezone(t *testing.T) {
 	t.Run("ValidTimezone", func(t *testing.T) {
 		user := &model.User{Timezone: "Europe/London"}

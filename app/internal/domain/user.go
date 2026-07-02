@@ -11,17 +11,25 @@ const CustomTranslationScenario = "cts"
 const WritingExamScenario = "wes"
 const WordSearchScenario = "wss"
 
+// Bounds for how often (in hours) scheduled word tests are sent to a user.
+const (
+	MinTestIntervalHours     = 1
+	MaxTestIntervalHours     = 8
+	DefaultTestIntervalHours = 3
+)
+
 type User struct {
-	TestInterval  uint16     `json:"test_interval,omitempty" gorm:"default:60"`
-	TargetRate    uint16     `json:"target_rate,omitempty" gorm:"default:5"`
-	ChatId        int64      `json:"chat_id" gorm:"primaryKey"`
-	BookId        int64      `json:"book_id"`
-	InterfaceLang string     `json:"interface_lang,omitempty"`
-	NativeLang    string     `json:"native_lang,omitempty"`
-	TargetLang    string     `json:"target_lang,omitempty"`
-	Timezone      string     `json:"timezone,omitempty" gorm:"default:'UTC'"`
-	QuietHours    QuietHours `gorm:"embedded"`
-	StateData     StateData  `gorm:"embedded"`
+	TestInterval   uint16     `json:"test_interval,omitempty" gorm:"default:3"`
+	TargetRate     uint16     `json:"target_rate,omitempty" gorm:"default:5"`
+	ChatId         int64      `json:"chat_id" gorm:"primaryKey"`
+	BookId         int64      `json:"book_id"`
+	InterfaceLang  string     `json:"interface_lang,omitempty"`
+	NativeLang     string     `json:"native_lang,omitempty"`
+	TargetLang     string     `json:"target_lang,omitempty"`
+	Timezone       string     `json:"timezone,omitempty" gorm:"default:'UTC'"`
+	LastTestSentAt time.Time  `json:"last_test_sent_at,omitempty"`
+	QuietHours     QuietHours `gorm:"embedded"`
+	StateData      StateData  `gorm:"embedded"`
 }
 
 type QuietHours struct {
@@ -49,6 +57,27 @@ func (u *User) GetOppositeLang(lang string) string {
 		return u.TargetLang
 	}
 	return u.NativeLang
+}
+
+// GetTestIntervalHours returns the configured test interval clamped to the
+// supported 1-8 hour range, falling back to the default for invalid values
+// (including legacy rows that stored other units).
+func (u *User) GetTestIntervalHours() int {
+	interval := int(u.TestInterval)
+	if interval < MinTestIntervalHours || interval > MaxTestIntervalHours {
+		return DefaultTestIntervalHours
+	}
+	return interval
+}
+
+// IsTestDue reports whether enough time has passed since the last scheduled
+// test for this user to receive a new one.
+func (u *User) IsTestDue(now time.Time) bool {
+	if u.LastTestSentAt.IsZero() {
+		return true
+	}
+	interval := time.Duration(u.GetTestIntervalHours()) * time.Hour
+	return now.Sub(u.LastTestSentAt) >= interval
 }
 
 func (u *User) IsInQuietHours() bool {

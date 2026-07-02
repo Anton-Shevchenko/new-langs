@@ -217,11 +217,13 @@ func InitCron(appRouter *handlers.AppRouter, wordService *service.WordService, u
 
 	once.Do(func() {
 		c := cron.New()
-		c.AddFunc("0 */3 * * *", func() {
+		// Run hourly; each user receives tests according to their own
+		// configured interval (1-8 hours) tracked via LastTestSentAt.
+		c.AddFunc("0 * * * *", func() {
 			log.Println("Running scheduled word tests")
 			job.Execute(appRouter.OnTestAnswer, appRouter.OnWriteTestOption)
 		})
 		c.Start()
-		log.Println("Scheduler started. Word tests will be sent every 3 hours.")
+		log.Println("Scheduler started. Word tests are sent based on each user's interval.")
 	})
 }

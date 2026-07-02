@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+	"langs/internal/domain"
 	"langs/pkg/nlp/language_detector"
 	"langs/pkg/nlp/spellio"
 	"langs/pkg/nlp/wordTranslator"
@@ -130,6 +131,19 @@ func (h *AppRouter) HandleSettingsCallbacks(
 		user := h.getUserFromContextMsg(ctx, b, mes)
 		user.Timezone = timezone
 		user.StateData.Scenario = ""
+		h.userRepository.Update(user)
+
+		h.sendSettingsMenu(ctx, b, mes.Message.Chat.ID, user)
+		return
+	}
+
+	if strings.HasPrefix(callbackData, "interval_") {
+		hours, err := strconv.Atoi(strings.TrimPrefix(callbackData, "interval_"))
+		if err != nil || hours < model.MinTestIntervalHours || hours > model.MaxTestIntervalHours {
+			return
+		}
+		user := h.getUserFromContextMsg(ctx, b, mes)
+		user.TestInterval = uint16(hours)
 		h.userRepository.Update(user)
 
 		h.sendSettingsMenu(ctx, b, mes.Message.Chat.ID, user)

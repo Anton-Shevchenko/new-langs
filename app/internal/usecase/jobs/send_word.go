@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"time"
+
 	"github.com/go-telegram/ui/keyboard/inline"
 	"langs/internal/domain"
 	"langs/internal/interfaces"
@@ -30,8 +32,9 @@ func (j *SendWordJob) Execute(handle, writeTestHandle inline.OnSelect) {
 		return
 	}
 
+	now := time.Now()
 	for _, user := range users {
-		j.executeWordTests(user, handle, writeTestHandle, defaultTestsCount)
+		j.executeWordTests(user, handle, writeTestHandle, defaultTestsCount, now)
 	}
 }
 
@@ -40,12 +43,20 @@ func (j *SendWordJob) executeWordTests(
 	handle,
 	writeTestHandle inline.OnSelect,
 	testCount int,
+	now time.Time,
 ) {
 	if user.IsInQuietHours() {
+		return
+	}
+
+	if !user.IsTestDue(now) {
 		return
 	}
 
 	for i := 0; i < testCount; i++ {
 		j.wordService.SendTest(user, handle, writeTestHandle)
 	}
+
+	user.LastTestSentAt = now
+	j.userRepository.Update(user)
 }
