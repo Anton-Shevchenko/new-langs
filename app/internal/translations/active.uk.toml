@@ -14,7 +14,7 @@ other = "Ви будете вивчати"
 other = "📚 Список"
 
 [btn_test_me]
-other = "🧠 Перевір мене"
+other = "📝 Перевір мене"
 
 [btn_more_options]
 other = "Більше опцій"
@@ -137,13 +137,13 @@ other = "Переклади:"
 other = "📖 Приклади:"
 
 [fmt_forms]
-other = "📖 Форми:"
+other = "🔤 Форми:"
 
 [fmt_article]
-other = "🔍 Артикль:"
+other = "🏷 Артикль:"
 
 [fmt_infinitive]
-other = "🔍 Інфінітив:"
+other = "▶️ Інфінітив:"
 
 [fmt_unknown_word]
 other = "❓ Невідоме слово."
