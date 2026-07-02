@@ -31,6 +31,14 @@ func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) 
 	}
 
 	getStrategy(sourceLang).PostProcess(tr, raw)
+
+	// When translating into German from another language, the German-specific
+	// strategy is not selected (it keys off the source language), so enrich the
+	// first German translation with its article here.
+	if targetLang == "de" && sourceLang != "de" {
+		enrichGerman(tr)
+	}
+
 	return tr, nil
 }
 

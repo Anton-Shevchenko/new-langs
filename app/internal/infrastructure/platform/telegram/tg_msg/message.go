@@ -10,7 +10,6 @@ import (
 	"langs/internal/domain"
 	"langs/internal/infrastructure/platform/telegram/tg_keyboard"
 	"langs/internal/presentation/formatter"
-	"langs/pkg/nlp/verbformen_de"
 	"langs/pkg/nlp/wordTranslator"
 )
 
@@ -110,12 +109,9 @@ func (tgm *TGMessageService) SendWordView(
 
 	if user.NativeLang == sourceWordLang {
 		msgText = wordMsg.ToNativeWordString()
-		if wordMsg.TranslationLang == "de" && len(wordMsg.Translations) > 0 {
-			lookup, err := verbformen_de.Lookup(wordMsg.Translations[0])
-			if err == nil && lookup.Article != "" {
-				wordWithArticle := lookup.Article + " " + lookup.Word
-				wordMsg.Translations = append([]string{wordWithArticle}, wordMsg.Translations...)
-			}
+		if wordMsg.TranslationLang == "de" && wordMsg.Article != "" && len(wordMsg.Translations) > 0 {
+			wordWithArticle := wordMsg.Article + " " + wordMsg.Translations[0]
+			wordMsg.Translations = append([]string{wordWithArticle}, wordMsg.Translations...)
 		}
 	} else {
 		msgText = wordMsg.ToString(user.NativeLang)
