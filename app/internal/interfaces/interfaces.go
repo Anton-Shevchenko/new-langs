@@ -5,7 +5,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/go-telegram/ui/keyboard/inline"
-	"langs/internal/model"
+	"langs/internal/domain"
 )
 
 type UserService interface {
@@ -19,10 +19,8 @@ type UserRepository interface {
 	FirstOrCreate(chatId int64) (*model.User, error)
 	Update(user *model.User) error
 	Create(user *model.User) error
-	GetAllByInterval(interval uint16) ([]*model.User, error)
+	GetAll() ([]*model.User, error)
 	GetAllChatIDs() ([]int64, error)
-
-	GetBookPart(id int64) (*model.BookPart, error)
 }
 
 type BookRepository interface {
@@ -35,12 +33,14 @@ type BookRepository interface {
 type WordRepository interface {
 	Create(word *model.Word) error
 	AllByChatId(chatId int64, limit, offset int) ([]*model.Word, error)
-	GetRandomWordByChatIdAndRate(chatId int64) (*model.Word, error)
+	SearchByChatId(chatId int64, query string, limit int) ([]*model.Word, error)
+	GetRandomWordByChatIdAndRateLimit(chatId int64, rate uint16) (*model.Word, error)
 	GetRandomTranslationsByChatId(chatId int64, exception, lang string, limit int) ([]string, error)
 	CheckSimilarWord(word *model.Word) (*model.Word, error)
 	Delete(id int64) error
 	GetCountByChatId(chatId int64) int64
 	Save(word *model.Word) error
+	First(id int64) (*model.Word, error)
 }
 
 type MessengerService interface {

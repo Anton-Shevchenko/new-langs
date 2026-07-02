@@ -4,7 +4,7 @@ services:
     container_name: go-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_PASSWORD: pass
       POSTGRES_DB: my_database
     ports:
       - "5432:5432"
@@ -28,16 +28,18 @@ services:
         condition: service_healthy
     environment:
       - PORT=443
-      - PG_PASSWORD=${PG_PASSWORD}
-      - ENV=${ENV}
-      - PG_USER=${PG_USER}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - PG_PASSWORD=pass
+      - ENV=${ENV:-development}
+      - PG_USER=postgres
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-dummy_token}
+      - TEST_CHAT_ID=${TEST_CHAT_ID:-383672992}
     restart: on-failure
     ports:
       - "443:443"
     command: ["air", "--once"]
     volumes:
       - ./app:/app
+      - ./tests:/tests
     networks:
       - app-network
 
