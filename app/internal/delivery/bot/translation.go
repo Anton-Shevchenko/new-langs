@@ -46,22 +46,35 @@ func (h *AppRouter) processTranslation(
 	update *models.Update,
 	translation *wordTranslator.TranslateResult,
 ) {
-	if !translation.IsValid && len(strings.Fields(update.Message.Text)) == 1 {
-		if !h.handleSpellingMistakes(ctx, b, update) {
+	if len(strings.Fields(update.Message.Text)) == 1 {
+		// Google Translate silently "corrects" misspellings and still returns a
+		// translation with a high confidence score, so neither IsValid nor the
+		// confidence can be trusted to catch typos. The one reliable Google
+		// signal is RecognizedWord (a real dictionary entry): when it is set
+		// the word is definitely not a typo, so we skip the spell check and
+		// avoid an extra external request. Otherwise we ask LanguageTool, which
+		// is the source of truth across all languages; if it finds a mistake it
+		// shows suggestions and we stop here.
+		if !translation.RecognizedWord && h.handleSpellingMistakes(ctx, b, update) {
+			return
+		}
+
+		if !translation.IsValid {
 			ts := translation.SimpleString()
 			TGbot.SendMessage(ctx, b, update.Message.Chat.ID, ts, nil)
+			return
 		}
-	} else {
-		h.tgMessage.SendWordView(
-			ctx,
-			sourceWord,
-			sourceWordLang,
-			update.Message,
-			translation,
-			h.OnSelectTranslateOption,
-			h.handleCustomTranslation,
-		)
 	}
+
+	h.tgMessage.SendWordView(
+		ctx,
+		sourceWord,
+		sourceWordLang,
+		update.Message,
+		translation,
+		h.OnSelectTranslateOption,
+		h.handleCustomTranslation,
+	)
 }
 
 func (h *AppRouter) handleCustomTranslation(

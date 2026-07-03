@@ -136,6 +136,8 @@ func (s *defaultStrategy) process(tr *TranslateResult, raw []interface{}) {
 	tr.Translations = SliceUnique(tr.Translations)
 	tr.Examples = SliceUnique(tr.Examples)
 
+	tr.RecognizedWord = posPresent
+
 	conf, ok := safeGetFloat(raw, 6)
 	isCorrect := ok && conf > 0.75
 
