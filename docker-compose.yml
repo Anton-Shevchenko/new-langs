@@ -33,9 +33,13 @@ services:
       - PG_USER=${PG_USER}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-dummy_token}
       - TEST_CHAT_ID=${TEST_CHAT_ID}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_PORT=${ADMIN_PORT:-49281}
     restart: on-failure
     ports:
       - "443:443"
+      - "49281:49281"
     command: ["air", "--once"]
     volumes:
       - ./app:/app
