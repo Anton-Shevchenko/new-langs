@@ -6,6 +6,7 @@ import (
 	bot_api "github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/robfig/cron/v3"
+	"langs/internal/delivery/admin"
 	handlers "langs/internal/delivery/bot"
 	"langs/internal/delivery/command"
 	"langs/internal/domain"
@@ -111,6 +112,8 @@ func initDependencies(ctx context.Context) *bot_api.Bot {
 	if err != nil {
 		fmt.Println("Database migration error:", err)
 	}
+
+	admin.NewServer(postgresConnection).Start()
 
 	reader := book_reader.NewBookReader(postgresConnection)
 
