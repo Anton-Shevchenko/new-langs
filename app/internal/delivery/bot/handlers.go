@@ -13,21 +13,13 @@ import (
 	"strings"
 )
 
-func (h *AppRouter) handleSpellingMistakes(ctx context.Context, b *bot.Bot, update *models.Update) bool {
-	user, err := h.userService.GetUserFromContext(ctx)
-	if err != nil {
-		h.handleError(ctx, b, update.Message.Chat.ID, "User retrieval failed")
-		return false
-	}
-
-	newWord := strings.ToLower(strings.TrimSpace(update.Message.Text))
-	detectedLang, err := language_detector.Detect(newWord, user.GetUserLangs())
-
-	if err != nil {
-		return false
-	}
-
-	checkResults := spellio.Check(newWord, detectedLang)
+// handleSpellingMistakes checks the given word (in the already-detected
+// language) for spelling mistakes and, if any are found, shows replacement
+// suggestions. The word and language are passed in from the caller, which has
+// already detected them, to avoid a redundant (and expensive) language
+// detection pass.
+func (h *AppRouter) handleSpellingMistakes(ctx context.Context, b *bot.Bot, update *models.Update, word, lang string) bool {
+	checkResults := spellio.Check(word, lang)
 
 	if checkResults != nil && checkResults.Message == spellio.SpellingMistake {
 		replacementKeyboard := h.tgKeyboard.BuildReplacementKeyboard(
