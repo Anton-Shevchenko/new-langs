@@ -55,7 +55,7 @@ func (h *AppRouter) processTranslation(
 		// avoid an extra external request. Otherwise we ask LanguageTool, which
 		// is the source of truth across all languages; if it finds a mistake it
 		// shows suggestions and we stop here.
-		if !translation.RecognizedWord && h.handleSpellingMistakes(ctx, b, update) {
+		if !translation.RecognizedWord && h.handleSpellingMistakes(ctx, b, update, sourceWord, sourceWordLang) {
 			return
 		}
 

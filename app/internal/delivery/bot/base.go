@@ -24,7 +24,7 @@ type AppRouterInterface interface {
 	processNewWord(ctx context.Context, b *bot.Bot, update *models.Update, user *model.User)
 	processTranslation(ctx context.Context, b *bot.Bot, sourceWord string, sourceWordLang string, update *models.Update, translation *wordTranslator.TranslateResult)
 	handleError(ctx context.Context, b *bot.Bot, chatID int64, errorMsg string)
-	handleSpellingMistakes(ctx context.Context, b *bot.Bot, update *models.Update) bool
+	handleSpellingMistakes(ctx context.Context, b *bot.Bot, update *models.Update, word string, lang string) bool
 	handleReplacement(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, data []byte)
 	handleCustomTranslation(ctx context.Context, b *bot.Bot, mes models.MaybeInaccessibleMessage, data []byte)
 	handleDocument(ctx context.Context, b *bot.Bot, update *models.Update)
