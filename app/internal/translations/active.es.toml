@@ -151,5 +151,8 @@ other = "❓ Palabra desconocida."
 [word_added]
 other = "Palabra añadida a tu lista"
 
+[word_added_article]
+other = "Guardado con artículo: <b>%s</b>"
+
 [no_source_word]
 other = "No se encontró la palabra original."

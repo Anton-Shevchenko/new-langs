@@ -12,6 +12,7 @@ import (
 	"langs/internal/consts"
 	"langs/internal/domain"
 	"langs/internal/infrastructure/platform/telegram/helper"
+	"langs/pkg/nlp/wordTranslator"
 )
 
 func (h *AppRouter) OnTestMe(ctx context.Context, b *bot.Bot, update *models.Update) {
@@ -126,8 +127,8 @@ func isCorrect(input, target string) bool {
 
 	// Accept German nouns with or without the article:
 	// "Hund" matches "der Hund" and vice versa, but a wrong article does not.
-	inputArticle, inputWord, inputHas := splitGermanArticle(input)
-	targetArticle, targetWord, targetHas := splitGermanArticle(target)
+	inputArticle, inputWord, inputHas := wordTranslator.SplitGermanArticle(input)
+	targetArticle, targetWord, targetHas := wordTranslator.SplitGermanArticle(target)
 
 	if inputHas && targetHas {
 		return inputArticle == targetArticle && strings.EqualFold(inputWord, targetWord)

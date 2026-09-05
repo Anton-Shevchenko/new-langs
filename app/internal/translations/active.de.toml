@@ -151,5 +151,8 @@ other = "❓ Unbekanntes Wort."
 [word_added]
 other = "Wort zu deiner Liste hinzugefügt"
 
+[word_added_article]
+other = "Gespeichert mit Artikel: <b>%s</b>"
+
 [no_source_word]
 other = "Kein Ausgangswort gefunden."
