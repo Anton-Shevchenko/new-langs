@@ -36,10 +36,14 @@ services:
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - ADMIN_PORT=${ADMIN_PORT:-49281}
+      - WHATSAPP_TOKEN=${WHATSAPP_TOKEN}
+      - WHATSAPP_PHONE_ID=${WHATSAPP_PHONE_ID}
+      - WHATSAPP_VERIFY_TOKEN=${WHATSAPP_VERIFY_TOKEN:-langbot-whatsapp-verify}
     restart: on-failure
     ports:
       - "443:443"
       - "49281:49281"
+      - "8081:8081"
     command: ["air", "--once"]
     volumes:
       - ./app:/app

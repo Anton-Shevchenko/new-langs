@@ -4,32 +4,48 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/robertkrimen/otto"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 )
 
+const (
+	browserUA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+	googleDictionaryURL = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=ex&dt=md&sl=%s&tl=%s&dt=t&dt=rm&dt=at&q=%s"
+	googleChromeDictURL = "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=%s&tl=%s&q=%s"
+	myMemoryURL         = "https://api.mymemory.translated.net/get?q=%s&langpair=%s|%s"
+)
+
+var httpClient = &http.Client{Timeout: 10 * time.Second}
+
 func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) {
-	encoded, err := encodeURI(source)
-	if err != nil {
-		return nil, err
+	encoded := url.QueryEscape(source)
+
+	if text, err := fetchChromeDict(encoded, sourceLang, targetLang); err == nil && text != "" {
+		return simpleResult(source, sourceLang, targetLang, text), nil
 	}
-	url := buildTranslateURL(encoded, sourceLang, targetLang)
-	body, err := fetchTranslationData(url)
-	if err != nil {
-		return nil, err
+
+	if text, err := fetchMyMemory(encoded, sourceLang, targetLang); err == nil && text != "" {
+		return simpleResult(source, sourceLang, targetLang, text), nil
 	}
-	raw, err := parseResponse(body)
-	if err != nil {
-		return nil, err
+
+	// gtx last: richest response, but often 429.
+	if raw, err := fetchGoogleDictionary(encoded, sourceLang, targetLang); err == nil {
+		return finishGoogleResult(source, sourceLang, targetLang, raw), nil
 	}
+
+	return nil, errors.New("all translation providers failed")
+}
+
+func finishGoogleResult(source, sourceLang, targetLang string, raw []interface{}) *TranslateResult {
 	tr := &TranslateResult{
 		SourceWord:      source,
 		SourceLang:      sourceLang,
 		TranslationLang: targetLang,
 	}
-
 	getStrategy(sourceLang).PostProcess(tr, raw)
 
 	// When translating into German from another language, the German-specific
@@ -38,30 +54,73 @@ func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) 
 	if targetLang == "de" && sourceLang != "de" {
 		enrichGerman(tr)
 	}
-
-	return tr, nil
+	return tr
 }
 
-func encodeURI(s string) (string, error) {
-	vm := otto.New()
-	if err := vm.Set("sourceText", s); err != nil {
-		return "", errors.New("error setting js variable")
+func simpleResult(source, sourceLang, targetLang, text string) *TranslateResult {
+	tr := &TranslateResult{
+		SourceWord:      source,
+		SourceLang:      sourceLang,
+		TranslationLang: targetLang,
+		Translations:    []string{text},
+		IsValid:         true,
+		IsSimpleWord:    len(strings.Fields(source)) == 1,
 	}
-	if _, err := vm.Run("eUri = encodeURI(sourceText);"); err != nil {
-		return "", errors.New("error executing JavaScript")
+	if sourceLang == "de" || targetLang == "de" {
+		enrichGerman(tr)
 	}
-	val, err := vm.Get("eUri")
+	return tr
+}
+
+func fetchGoogleDictionary(encoded, sourceLang, targetLang string) ([]interface{}, error) {
+	body, err := doGET(fmt.Sprintf(googleDictionaryURL, sourceLang, targetLang, encoded))
 	if err != nil {
-		return "", errors.New("error getting variable from js")
+		return nil, err
 	}
-	return val.ToString()
+	return parseResponse(body)
 }
 
-func buildTranslateURL(encodedSource, sourceLang, targetLang string) string {
-	return fmt.Sprintf(
-		"https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=ex&dt=md&sl=%s&tl=%s&dt=t&dt=rm&dt=at&q=%s",
-		sourceLang, targetLang, encodedSource,
-	)
+func fetchChromeDict(encoded, sourceLang, targetLang string) (string, error) {
+	body, err := doGET(fmt.Sprintf(googleChromeDictURL, sourceLang, targetLang, encoded))
+	if err != nil {
+		return "", err
+	}
+	return parseChromeDict(body)
+}
+
+func fetchMyMemory(encoded, sourceLang, targetLang string) (string, error) {
+	body, err := doGET(fmt.Sprintf(myMemoryURL, encoded, sourceLang, targetLang))
+	if err != nil {
+		return "", err
+	}
+	return parseMyMemory(body)
+}
+
+func doGET(rawURL string) ([]byte, error) {
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", browserUA)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("error reading response body")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("status %d", resp.StatusCode)
+	}
+	if len(body) == 0 || body[0] == '<' {
+		return nil, errors.New("non-JSON response")
+	}
+	return body, nil
 }
 
 // detectPartOfSpeech resolves the part of speech of a word by querying Google's
@@ -80,16 +139,11 @@ func detectPartOfSpeech(word, lang string) string {
 		target = "de"
 	}
 
-	encoded, err := encodeURI(word)
-	if err != nil {
-		return ""
-	}
-
-	url := fmt.Sprintf(
+	reqURL := fmt.Sprintf(
 		"https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&dt=bd&q=%s",
-		lang, target, encoded,
+		lang, target, url.QueryEscape(word),
 	)
-	body, err := fetchTranslationData(url)
+	body, err := doGET(reqURL)
 	if err != nil {
 		return ""
 	}
@@ -134,22 +188,6 @@ func parsePartOfSpeech(raw []interface{}) string {
 	return ""
 }
 
-func fetchTranslationData(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, errors.New("error getting translate.googleapis.com")
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.New("error reading response body")
-	}
-	if strings.Contains(string(body), "<title>Error 400") {
-		return nil, errors.New("error 400 (Bad Request)")
-	}
-	return body, nil
-}
-
 func parseResponse(body []byte) ([]interface{}, error) {
 	var result []interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
@@ -160,3 +198,51 @@ func parseResponse(body []byte) ([]interface{}, error) {
 	}
 	return result, nil
 }
+
+func parseChromeDict(body []byte) (string, error) {
+	var raw []interface{}
+	if err := json.Unmarshal(body, &raw); err != nil {
+		return "", err
+	}
+	text := firstString(raw)
+	if text == "" {
+		return "", errors.New("empty translation")
+	}
+	return text, nil
+}
+
+type myMemoryResponse struct {
+	ResponseData struct {
+		TranslatedText string `json:"translatedText"`
+	} `json:"responseData"`
+	ResponseStatus int `json:"responseStatus"`
+}
+
+func parseMyMemory(body []byte) (string, error) {
+	var parsed myMemoryResponse
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return "", err
+	}
+	if parsed.ResponseStatus != 0 && parsed.ResponseStatus != http.StatusOK {
+		return "", fmt.Errorf("mymemory status %d", parsed.ResponseStatus)
+	}
+	text := strings.TrimSpace(parsed.ResponseData.TranslatedText)
+	if text == "" || strings.Contains(strings.ToUpper(text), "MYMEMORY") {
+		return "", errors.New("mymemory returned no translation")
+	}
+	return text, nil
+}
+
+func firstString(raw []interface{}) string {
+	if len(raw) == 0 {
+		return ""
+	}
+	if s, ok := raw[0].(string); ok {
+		return strings.TrimSpace(s)
+	}
+	if nested, ok := raw[0].([]interface{}); ok {
+		return firstString(nested)
+	}
+	return ""
+}
+

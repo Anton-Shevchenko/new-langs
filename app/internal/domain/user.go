@@ -18,11 +18,31 @@ const (
 	DefaultTestIntervalHours = 3
 )
 
+const (
+	MessengerTelegram = "telegram"
+	MessengerWhatsApp = "whatsapp"
+)
+
+// WhatsAppChatIDThreshold separates Telegram chat ids from WhatsApp phone
+// numbers (12+ digits). Used only on first contact and for backfilling legacy
+// rows; afterwards the persisted Messenger field is the source of truth.
+const WhatsAppChatIDThreshold = 10_000_000_000
+
+// DetectMessengerByChatID guesses the messenger for a chat id that has no
+// stored user yet.
+func DetectMessengerByChatID(chatId int64) string {
+	if chatId > WhatsAppChatIDThreshold {
+		return MessengerWhatsApp
+	}
+	return MessengerTelegram
+}
+
 type User struct {
 	TestInterval   uint16     `json:"test_interval,omitempty" gorm:"default:3"`
 	TargetRate     uint16     `json:"target_rate,omitempty" gorm:"default:5"`
 	ChatId         int64      `json:"chat_id" gorm:"primaryKey"`
 	BookId         int64      `json:"book_id"`
+	Messenger      string     `json:"messenger,omitempty" gorm:"default:'telegram'"`
 	InterfaceLang  string     `json:"interface_lang,omitempty"`
 	NativeLang     string     `json:"native_lang,omitempty"`
 	TargetLang     string     `json:"target_lang,omitempty"`
@@ -30,6 +50,16 @@ type User struct {
 	LastTestSentAt time.Time  `json:"last_test_sent_at,omitempty"`
 	QuietHours     QuietHours `gorm:"embedded"`
 	StateData      StateData  `gorm:"embedded"`
+}
+
+// IsWhatsApp reports whether the user talks to the bot via WhatsApp. Falls
+// back to the chat-id heuristic for rows created before the Messenger field
+// existed.
+func (u *User) IsWhatsApp() bool {
+	if u.Messenger != "" {
+		return u.Messenger == MessengerWhatsApp
+	}
+	return DetectMessengerByChatID(u.ChatId) == MessengerWhatsApp
 }
 
 type QuietHours struct {
