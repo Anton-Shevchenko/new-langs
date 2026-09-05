@@ -151,5 +151,8 @@ other = "❓ Unknown word."
 [word_added]
 other = "Word added to your list"
 
+[word_added_article]
+other = "Saved with article: <b>%s</b>"
+
 [no_source_word]
 other = "No source word found."

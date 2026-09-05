@@ -151,5 +151,8 @@ other = "❓ Неизвестное слово."
 [word_added]
 other = "Слово добавлено в ваш список"
 
+[word_added_article]
+other = "Сохранено с артиклем: <b>%s</b>"
+
 [no_source_word]
 other = "Исходное слово не найдено."

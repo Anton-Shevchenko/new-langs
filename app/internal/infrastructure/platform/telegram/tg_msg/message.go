@@ -119,13 +119,13 @@ func (tgm *TGMessageService) SendWordView(
 
 	if user.NativeLang == sourceWordLang {
 		msgText = wordMsg.ToNativeWordString()
-		if wordMsg.TranslationLang == "de" && wordMsg.Article != "" && len(wordMsg.Translations) > 0 {
-			wordWithArticle := wordMsg.Article + " " + wordMsg.Translations[0]
-			wordMsg.Translations = append([]string{wordWithArticle}, wordMsg.Translations...)
-		}
 	} else {
 		msgText = wordMsg.ToString(user.NativeLang)
 	}
+
+	// First German option shows der/die/das; the rest stay bare and get the
+	// article only when the user picks them (except a custom translation).
+	wordTranslator.PrefixFirstGermanTranslation(wordMsg)
 
 	err := tgm.sendMessage(
 		ctx,

@@ -8,7 +8,6 @@ import (
 	TGbot "langs/internal/infrastructure/platform/telegram/helper"
 	"langs/internal/presentation/formatter"
 	"langs/pkg/nlp/wordTranslator"
-	"regexp"
 	"strings"
 )
 
@@ -114,16 +113,19 @@ func (h *AppRouter) OnSelectTranslateOption(
 
 	sourceWord := wordTranslator.ParseSourceWordsFromTranslateMsg(mes.Message.Text)
 
-	if !hasGermanArticle(sourceWord) {
+	if !wordTranslator.HasGermanArticle(sourceWord) {
 		if article := wordTranslator.ParseArticleFromTranslateMsg(mes.Message.Text); article != "" {
 			sourceWord = article + " " + sourceWord
 		}
 	}
 
-	msgText := formatter.FormatWordMessage(sourceWord, string(translation))
+	chosen := strings.TrimSpace(string(translation))
+	savedTranslation, article := wordTranslator.AttachGermanArticle(chosen)
+
+	msgText := formatter.FormatWordMessageWithArticle(sourceWord, savedTranslation, article)
 	chatId := mes.Message.Chat.ID
 
-	collisionWord, err := h.wordService.AddWord(sourceWord, string(translation), user)
+	collisionWord, err := h.wordService.AddWord(sourceWord, savedTranslation, user)
 
 	if err != nil {
 		h.handleError(ctx, b, chatId, "Error adding word")
@@ -136,20 +138,4 @@ func (h *AppRouter) OnSelectTranslateOption(
 	}
 
 	h.tgMessage.SendOrEditMessage(ctx, chatId, 0, msgText, nil)
-
-}
-
-var articleRe = regexp.MustCompile(`(?i)^(der|die|das)\s+(.+)$`)
-
-func splitGermanArticle(s string) (article, rest string, ok bool) {
-	s = strings.TrimSpace(s)
-	if m := articleRe.FindStringSubmatch(s); len(m) == 3 {
-		return strings.ToLower(m[1]), m[2], true
-	}
-	return "", s, false
-}
-
-func hasGermanArticle(s string) bool {
-	_, _, ok := splitGermanArticle(s)
-	return ok
 }

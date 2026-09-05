@@ -151,5 +151,8 @@ other = "❓ Onbekend woord."
 [word_added]
 other = "Woord toegevoegd aan je lijst"
 
+[word_added_article]
+other = "Opgeslagen met lidwoord: <b>%s</b>"
+
 [no_source_word]
 other = "Geen bronwoord gevonden."
