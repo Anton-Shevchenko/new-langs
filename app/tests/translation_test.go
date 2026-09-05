@@ -89,6 +89,19 @@ func TestTranslateVariousWords(t *testing.T) {
 	}
 }
 
+func TestTranslateGermanNounHasArticle(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping live translation test in short mode")
+	}
+
+	tr := translateOrSkip(t, "auto", "de", "uk")
+	assert.NotEmpty(t, tr.Translations, "expected a translation for Auto")
+	if tr.Article == "" {
+		t.Skip("article lookup unavailable (wiktionary/network)")
+	}
+	assert.Equal(t, "das", tr.Article)
+}
+
 // TestTranslateSentence verifies that multi-word input is treated as a sentence
 // rather than a single dictionary word.
 func TestTranslateSentence(t *testing.T) {

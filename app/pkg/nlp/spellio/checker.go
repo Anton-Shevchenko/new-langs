@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const SpellingMistake = "Spelling mistake"
@@ -131,16 +132,31 @@ func Check(text string, lang string) *Result {
 	}
 
 	for _, match := range apiResponse.Matches {
-
-		if len(match.Replacements) > 0 {
-			return &Result{
-				Message:      SpellingMistake,
-				Replacements: getReplacements(match.Replacements),
-			}
+		if len(match.Replacements) == 0 {
+			continue
+		}
+		replacements := getReplacements(match.Replacements)
+		// Handlers lowercase input, so LanguageTool flags every German noun
+		// ("auto" → "Auto"). That is capitalization, not a typo.
+		if isCapitalizationOnly(text, replacements) {
+			continue
+		}
+		return &Result{
+			Message:      SpellingMistake,
+			Replacements: replacements,
 		}
 	}
 
 	return nil
+}
+
+func isCapitalizationOnly(word string, replacements []string) bool {
+	for _, r := range replacements {
+		if strings.EqualFold(r, word) {
+			return true
+		}
+	}
+	return false
 }
 
 func getReplacements(replacements []Replacement) []string {
