@@ -2,5 +2,8 @@
 app/.bin
 app/tmp
 .env
+.env.*
+!.env.example
+.DS_Store
 .DD_Store
 docker-compose.override.yml

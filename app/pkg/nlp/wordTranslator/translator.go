@@ -15,29 +15,45 @@ const (
 	browserUA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 	googleDictionaryURL = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=ex&dt=md&sl=%s&tl=%s&dt=t&dt=rm&dt=at&q=%s"
-	googleChromeDictURL = "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=%s&tl=%s&q=%s"
-	myMemoryURL         = "https://api.mymemory.translated.net/get?q=%s&langpair=%s|%s"
+	googleChromeSingleURL = "https://clients5.google.com/translate_a/single?client=dict-chrome-ex&dt=t&dt=ex&dt=md&sl=%s&tl=%s&dt=rm&dt=at&q=%s"
+	googleChromeDictURL   = "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=%s&tl=%s&q=%s"
+	myMemoryURL           = "https://api.mymemory.translated.net/get?q=%s&langpair=%s|%s"
 )
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
 func Translate(source, sourceLang, targetLang string) (*TranslateResult, error) {
 	encoded := url.QueryEscape(source)
+	var errs []string
+
+	// Chrome-dict first: the `single` URL returns the same dictionary JSON as
+	// gtx (alternatives, POS, examples) and is less often rate-limited.
+	if raw, err := fetchGoogleArray(fmt.Sprintf(googleChromeSingleURL, sourceLang, targetLang, encoded)); err == nil {
+		return finishGoogleResult(source, sourceLang, targetLang, raw), nil
+	} else {
+		errs = append(errs, "chrome-single: "+err.Error())
+	}
 
 	if text, err := fetchChromeDict(encoded, sourceLang, targetLang); err == nil && text != "" {
 		return simpleResult(source, sourceLang, targetLang, text), nil
+	} else if err != nil {
+		errs = append(errs, "chrome-t: "+err.Error())
 	}
 
 	if text, err := fetchMyMemory(encoded, sourceLang, targetLang); err == nil && text != "" {
 		return simpleResult(source, sourceLang, targetLang, text), nil
+	} else if err != nil {
+		errs = append(errs, "mymemory: "+err.Error())
 	}
 
-	// gtx last: richest response, but often 429.
-	if raw, err := fetchGoogleDictionary(encoded, sourceLang, targetLang); err == nil {
+	if raw, err := fetchGoogleArray(fmt.Sprintf(googleDictionaryURL, sourceLang, targetLang, encoded)); err == nil {
 		return finishGoogleResult(source, sourceLang, targetLang, raw), nil
+	} else {
+		errs = append(errs, "gtx: "+err.Error())
 	}
 
-	return nil, errors.New("all translation providers failed")
+	fmt.Printf("translation providers failed for %q (%s->%s): %s\n", source, sourceLang, targetLang, strings.Join(errs, "; "))
+	return nil, fmt.Errorf("all translation providers failed: %s", strings.Join(errs, "; "))
 }
 
 func finishGoogleResult(source, sourceLang, targetLang string, raw []interface{}) *TranslateResult {
@@ -72,8 +88,8 @@ func simpleResult(source, sourceLang, targetLang, text string) *TranslateResult 
 	return tr
 }
 
-func fetchGoogleDictionary(encoded, sourceLang, targetLang string) ([]interface{}, error) {
-	body, err := doGET(fmt.Sprintf(googleDictionaryURL, sourceLang, targetLang, encoded))
+func fetchGoogleArray(rawURL string) ([]interface{}, error) {
+	body, err := doGET(rawURL)
 	if err != nil {
 		return nil, err
 	}
@@ -139,11 +155,19 @@ func detectPartOfSpeech(word, lang string) string {
 		target = "de"
 	}
 
+	encoded := url.QueryEscape(word)
 	reqURL := fmt.Sprintf(
-		"https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&dt=bd&q=%s",
-		lang, target, url.QueryEscape(word),
+		"https://clients5.google.com/translate_a/single?client=dict-chrome-ex&sl=%s&tl=%s&dt=t&dt=bd&q=%s",
+		lang, target, encoded,
 	)
 	body, err := doGET(reqURL)
+	if err != nil {
+		reqURL = fmt.Sprintf(
+			"https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&dt=bd&q=%s",
+			lang, target, encoded,
+		)
+		body, err = doGET(reqURL)
+	}
 	if err != nil {
 		return ""
 	}

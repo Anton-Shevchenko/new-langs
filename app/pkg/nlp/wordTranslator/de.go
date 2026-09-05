@@ -35,14 +35,15 @@ func enrichGerman(tr *TranslateResult) {
 		return
 	}
 
-	isNoun := germanConceptPOS(tr) == "noun"
+	pos := germanConceptPOS(tr)
+	isNoun := pos == "noun"
 
-	if isNoun {
-		// German nouns are capitalized; user input is lower-cased by the
-		// handlers, and Google is inconsistent, so normalize for the
-		// case-sensitive Wiktionary lookup.
+	// Fallback providers often omit POS. Wiktionary only returns Genus for
+	// nouns, so a hit is itself a noun signal (needed for "auto" → das Auto).
+	if isNoun || pos == "" {
 		if art, err := wiktionary_de.Article(capitalizeFirst(word)); err == nil && art != "" {
 			tr.Article = art
+			isNoun = true
 		}
 	}
 
