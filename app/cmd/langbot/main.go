@@ -113,6 +113,13 @@ func initDependencies(ctx context.Context) *bot_api.Bot {
 		fmt.Println("Database migration error:", err)
 	}
 
+	// Backfill Messenger for rows created before the column existed: the
+	// column default marks everyone as telegram, so re-tag WhatsApp users
+	// (phone-number chat ids) once. Idempotent.
+	postgresDB.Model(&model.User{}).
+		Where("chat_id > ? AND messenger = ?", model.WhatsAppChatIDThreshold, model.MessengerTelegram).
+		Update("messenger", model.MessengerWhatsApp)
+
 	admin.NewServer(postgresConnection).Start()
 
 	reader := book_reader.NewBookReader(postgresConnection)
@@ -135,12 +142,21 @@ func initDependencies(ctx context.Context) *bot_api.Bot {
 	commandSet := command.NewCommandSet(userService, userRepo, tgKeyboard, wordRepo, appRouter)
 	appRouter.SetCommandSet(commandSet)
 
+	// Outbound routing consults the stored user first, falling back to the
+	// chat-id heuristic for chats we haven't seen yet.
+	isWhatsAppUser := func(chatID int64) bool {
+		if user, err := userRepo.First(chatID); err == nil && user != nil {
+			return user.IsWhatsApp()
+		}
+		return model.DetectMessengerByChatID(chatID) == model.MessengerWhatsApp
+	}
+
 	botOptions := []bot_api.Option{
 		bot_api.WithMiddlewares(initUser),
 		bot_api.WithDebug(),
 		bot_api.WithDefaultHandler(appRouter.DefaultHandler),
 		bot_api.WithMessageTextHandler("/start", bot_api.MatchTypeExact, commandSet.Start),
-		bot_api.WithHTTPClient(30, &http.Client{Transport: whatsapp.NewProxyClient()}),
+		bot_api.WithHTTPClient(30, &http.Client{Transport: whatsapp.NewProxyClient(isWhatsAppUser)}),
 	}
 
 	b, err = bot_api.New(botToken, botOptions...)
@@ -195,7 +211,7 @@ func initUser(next bot_api.HandlerFunc) bot_api.HandlerFunc {
 
 		user := userService.InitUser(chatID)
 		if user == nil {
-			user = &model.User{ChatId: chatID}
+			user = &model.User{ChatId: chatID, Messenger: model.DetectMessengerByChatID(chatID)}
 			userService.Upsert(user)
 		}
 

@@ -13,6 +13,7 @@ import (
 	"langs/internal/usecase"
 	"langs/pkg/nlp/wordTranslator"
 	"strings"
+	"time"
 )
 
 type AppRouterInterface interface {
@@ -201,6 +202,24 @@ func (h *AppRouter) handleCallback(ctx context.Context, b *bot.Bot, update *mode
 	if strings.HasPrefix(callbackData, "replacement_") {
 		h.handleReplacement(ctx, b, mes, []byte(update.CallbackQuery.Data))
 		return
+	}
+
+	// WhatsApp interactive replies derived from Telegram reply keyboards carry
+	// the button text as callback data. Re-dispatch them as plain text so the
+	// exact-match message handlers (main menu buttons) can pick them up.
+	user, _ := h.userService.GetUserFromContext(ctx)
+	if mes.Message != nil && user != nil && user.IsWhatsApp() {
+		from := update.CallbackQuery.From
+		b.ProcessUpdate(ctx, &models.Update{
+			ID: update.ID,
+			Message: &models.Message{
+				ID:   mes.Message.ID,
+				From: &from,
+				Date: int(time.Now().Unix()),
+				Chat: mes.Message.Chat,
+				Text: callbackData,
+			},
+		})
 	}
 }
 

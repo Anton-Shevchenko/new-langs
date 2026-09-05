@@ -38,6 +38,7 @@ func (h *AppRouter) processNewWord(ctx context.Context, b *bot.Bot, update *mode
 
 	translation, err := wordTranslator.Translate(newWord, fromLang, langTo)
 	if err != nil {
+		fmt.Printf("Translation failed for %q (%s->%s): %v\n", newWord, fromLang, langTo, err)
 		h.handleError(ctx, b, update.Message.Chat.ID, "Translation failed")
 		return
 	}

@@ -46,7 +46,7 @@ func (r *userRepository) FirstOrCreate(chatId int64) (*model.User, error) {
 		}
 	}
 
-	newUser := &model.User{ChatId: chatId}
+	newUser := &model.User{ChatId: chatId, Messenger: model.DetectMessengerByChatID(chatId)}
 	err := r.Create(newUser)
 
 	return newUser, err
